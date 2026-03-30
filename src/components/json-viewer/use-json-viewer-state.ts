@@ -523,6 +523,42 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			};
 		}
 
+		case 'update-viewport': {
+			const visibleRows = computeVisibleRows(
+				state.nodes,
+				state.expandState,
+				state.nodeIndex,
+				action.showRootBraces,
+			);
+
+			// Preserve focus if possible
+			const oldFocusedId = state.focusedNodeId;
+			let focusedRowIndex = visibleRows.findIndex(
+				(r) => r.kind === 'node' && r.nodeId === oldFocusedId,
+			);
+			if (focusedRowIndex === -1) {
+				focusedRowIndex = 0;
+			}
+
+			const {visibleFromIndex, visibleToIndex} = clampScrollWindow(
+				focusedRowIndex,
+				visibleRows.length,
+				action.maxHeight,
+				state.visibleFromIndex,
+			);
+
+			return {
+				...state,
+				visibleRows,
+				focusedNodeId: visibleRows[focusedRowIndex]?.nodeId ?? state.focusedNodeId,
+				focusedRowIndex,
+				visibleFromIndex,
+				visibleToIndex,
+				maxHeight: action.maxHeight,
+				showRootBraces: action.showRootBraces,
+			};
+		}
+
 		default: {
 			return state;
 		}
@@ -572,6 +608,8 @@ export function useJsonViewerState(props: {
 	);
 
 	const isFirstRender = useRef(true);
+
+	// Full reset when data or expand depth changes
 	useEffect(() => {
 		if (isFirstRender.current) {
 			isFirstRender.current = false;
@@ -585,7 +623,22 @@ export function useJsonViewerState(props: {
 			maxHeight: props.maxHeight,
 			showRootBraces: props.showRootBraces,
 		});
-	}, [nodes, props.defaultExpandDepth, props.maxHeight, props.showRootBraces]);
+	}, [nodes, props.defaultExpandDepth]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Lightweight viewport update when only maxHeight or showRootBraces change
+	const isFirstViewportRender = useRef(true);
+	useEffect(() => {
+		if (isFirstViewportRender.current) {
+			isFirstViewportRender.current = false;
+			return;
+		}
+
+		dispatch({
+			type: 'update-viewport',
+			maxHeight: props.maxHeight,
+			showRootBraces: props.showRootBraces,
+		});
+	}, [props.maxHeight, props.showRootBraces]);
 
 	return {
 		...state,

@@ -203,4 +203,9 @@ export type TreeAction =
 			expandState: ExpandState;
 			maxHeight: number;
 			showRootBraces: boolean;
+	  }
+	| {
+			type: 'update-viewport';
+			maxHeight: number;
+			showRootBraces: boolean;
 	  };
