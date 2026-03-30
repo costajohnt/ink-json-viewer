@@ -4,7 +4,9 @@
 [![CI](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/ink-json-viewer.svg)](https://github.com/costajohnt/ink-json-viewer/blob/master/LICENSE)
 
-<img src="media/demo.gif" width="600">
+<p align="center">
+  <img src="media/demo.gif" alt="ink-json-viewer demo" width="600">
+</p>
 
 Interactive, collapsible JSON tree viewer component for [Ink](https://github.com/vadimdemedes/ink). Renders any JavaScript value as a navigable, syntax-colored tree in the terminal.
 
@@ -21,7 +23,7 @@ Interactive, collapsible JSON tree viewer component for [Ink](https://github.com
 
 ## Install
 
-```sh
+```
 npm install ink-json-viewer
 ```
 
@@ -229,7 +231,7 @@ Contributions are welcome. Please open an issue first to discuss what you'd like
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes between versions.
+See [GitHub Releases](https://github.com/costajohnt/ink-json-viewer/releases).
 
 ## License
 
