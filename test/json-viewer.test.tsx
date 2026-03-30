@@ -115,4 +115,90 @@ describe('JsonViewer', () => {
 		// The focus indicator character (U+276F)
 		expect(output).toContain('\u276F');
 	});
+
+	describe('showRootBraces', () => {
+		it('hides root { and } for objects when showRootBraces is false', () => {
+			const {lastFrame} = render(
+				<JsonViewer
+					data={{a: 1, b: 2}}
+					defaultExpandDepth={1}
+					showRootBraces={false}
+					enableKeyboard={false}
+				/>,
+			);
+			const output = lastFrame()!;
+			// Children should be visible
+			expect(output).toContain('a');
+			expect(output).toContain('b');
+			// The lines of the output should NOT contain a standalone opening/closing brace
+			const lines = output.split('\n');
+			const braceOnlyLines = lines.filter(l => l.trim() === '{' || l.trim() === '}');
+			expect(braceOnlyLines).toHaveLength(0);
+		});
+
+		it('hides root [ and ] for arrays when showRootBraces is false', () => {
+			const {lastFrame} = render(
+				<JsonViewer
+					data={[10, 20, 30]}
+					defaultExpandDepth={1}
+					showRootBraces={false}
+					enableKeyboard={false}
+				/>,
+			);
+			const output = lastFrame()!;
+			// Children should be visible
+			expect(output).toContain('10');
+			expect(output).toContain('20');
+			expect(output).toContain('30');
+			// No standalone bracket lines
+			const lines = output.split('\n');
+			const braceOnlyLines = lines.filter(l => l.trim() === '[' || l.trim() === ']');
+			expect(braceOnlyLines).toHaveLength(0);
+		});
+
+		it('renders children at depth 0 when showRootBraces is false', () => {
+			const {lastFrame} = render(
+				<JsonViewer
+					data={{a: 1}}
+					defaultExpandDepth={1}
+					showRootBraces={false}
+					indentWidth={2}
+					enableKeyboard={false}
+				/>,
+			);
+			const output = lastFrame()!;
+			// "a" should appear without extra indentation (depth 0)
+			expect(output).toContain('a');
+			// There should be no root bracket row
+			const lines = output.split('\n');
+			// The line with "a" should not be deeply indented
+			const lineWithA = lines.find(l => l.includes('a'));
+			expect(lineWithA).toBeDefined();
+		});
+
+		it('shows root braces by default', () => {
+			const {lastFrame} = render(
+				<JsonViewer
+					data={{a: 1}}
+					defaultExpandDepth={1}
+					enableKeyboard={false}
+				/>,
+			);
+			const output = lastFrame()!;
+			expect(output).toContain('{');
+			expect(output).toContain('}');
+		});
+
+		it('has no effect on primitive root values', () => {
+			const {lastFrame} = render(
+				<JsonViewer
+					data="hello"
+					showRootBraces={false}
+					enableKeyboard={false}
+				/>,
+			);
+			const output = lastFrame()!;
+			expect(output).toContain('"hello"');
+		});
+	});
 });

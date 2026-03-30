@@ -47,7 +47,8 @@ export function formatValue(
 		}
 
 		case 'date': {
-			return (value as Date).toISOString();
+			const d = value as Date;
+			return isNaN(d.getTime()) ? 'Invalid Date' : d.toISOString();
 		}
 
 		case 'regexp': {
@@ -102,5 +103,6 @@ export function formatKey(key: string | number): string {
 		return key;
 	}
 
-	return `"${key}"`;
+	const escaped = escapeString(key);
+	return `"${escaped}"`;
 }

@@ -1,5 +1,9 @@
 # ink-json-viewer
 
+[![npm version](https://img.shields.io/npm/v/ink-json-viewer.svg)](https://www.npmjs.com/package/ink-json-viewer)
+[![CI](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/ink-json-viewer.svg)](https://github.com/costajohnt/ink-json-viewer/blob/master/LICENSE)
+
 Interactive, collapsible JSON tree viewer component for [Ink](https://github.com/vadimdemedes/ink). Renders any JavaScript value as a navigable, syntax-colored tree in the terminal.
 
 ## Features
@@ -47,7 +51,7 @@ render(<JsonViewer data={data} defaultExpandDepth={1} />);
 | `data` | `unknown` | *required* | The value to render. Accepts any JS value: objects, arrays, primitives, Date, RegExp, Map, Set, BigInt, Symbol, functions, etc. |
 | `defaultExpandDepth` | `number` | `1` | Number of depth levels to expand on initial render. `0` = fully collapsed, `Infinity` = fully expanded. |
 | `maxHeight` | `number` | `20` | Maximum number of visible rows before virtual scrolling kicks in. |
-| `showRootBraces` | `boolean` | `true` | Whether to show the outermost brackets for the root value. |
+| `showRootBraces` | `boolean` | `true` | Whether to show the outermost brackets for the root value. When `false`, the root `{}`/`[]` rows are omitted and children render at depth 0 (unindented). |
 | `sortKeys` | `boolean` | `false` | Alphabetically sort object keys. |
 | `enableKeyboard` | `boolean` | `true` | Enable keyboard navigation and interaction. |
 | `indentWidth` | `number` | `2` | Number of spaces per indentation level. |
@@ -71,7 +75,8 @@ render(<JsonViewer data={data} defaultExpandDepth={1} />);
 | `G` | Jump to the last node |
 | `*` or `e` | Expand all nodes |
 | `-` or `E` | Collapse all nodes |
-| `/` | Enter search mode (stretch feature) |
+
+> **Note:** Search is planned for a future release.
 
 ## Syntax Coloring
 
@@ -109,7 +114,7 @@ The viewer detects and renders 16 value types:
 | `boolean` | `true`, `false` |
 | `null` | `null` |
 | `undefined` | `undefined` |
-| `date` | ISO string, e.g. `2024-01-15T00:00:00.000Z` |
+| `date` | ISO string, e.g. `2024-01-15T00:00:00.000Z`. Invalid dates render as `Invalid Date`. |
 | `regexp` | `/pattern/flags` |
 | `bigint` | `42n` |
 | `symbol` | `Symbol(description)` |
@@ -152,7 +157,7 @@ Override any color by passing a partial `theme` prop:
 
 All color values are Ink/Chalk color names (e.g., `'red'`, `'greenBright'`, `'gray'`).
 
-Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `focusedRowPrefix`, `searchMatch`, `circular`, `truncation`, `preview`.
+Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `focusedRowPrefix`, `circular`, `truncation`, `preview`.
 
 ## Large Data
 
@@ -180,6 +185,8 @@ import {
   defaultTheme,
   mergeTheme,
 } from 'ink-json-viewer';
+
+import type {JsonViewerState} from 'ink-json-viewer';
 ```
 
 - `flattenTree(data, options?)` converts any value into a flat `JsonNode[]` array
@@ -189,6 +196,7 @@ import {
 - `formatKey(key)` formats a property key (quoting if needed)
 - `truncate(string, maxLength)` truncates with ellipsis
 - `defaultTheme` / `mergeTheme(base, overrides)` for theme management
+- `JsonViewerState` is the full state object returned by the internal `useJsonViewerState` hook, including navigation methods like `focusNext()`, `expandAll()`, etc.
 
 ## TypeScript
 
@@ -196,15 +204,30 @@ All types are exported for use in your own components:
 
 ```ts
 import type {
-  JsonValueType,   // Union of all 16 type strings
-  JsonNode,        // A node in the flattened tree
-  VisibleRow,      // A row in the visible output
-  JsonViewerTheme, // Color theme shape
-  JsonViewerProps,  // Component props
-  ExpandState,     // Map<string, boolean> of expanded nodes
-  TreeState,       // Internal reducer state
+  JsonValueType,     // Union of all 16 type strings
+  JsonNode,          // A node in the flattened tree
+  VisibleRow,        // A row in the visible output
+  JsonViewerTheme,   // Color theme shape
+  JsonViewerProps,   // Component props
+  JsonViewerState,   // Full viewer state with navigation methods
+  ExpandState,       // ReadonlyMap<string, boolean> of expanded nodes
+  TreeState,         // Internal reducer state
 } from 'ink-json-viewer';
 ```
+
+## Contributing
+
+Contributions are welcome. Please open an issue first to discuss what you'd like to change.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b my-feature`)
+3. Make your changes and add tests
+4. Run `npm test` and `npx tsc --noEmit` to verify
+5. Commit and open a pull request
+
+## Changelog
+
+This project does not yet maintain a formal changelog. See [GitHub releases](https://github.com/costajohnt/ink-json-viewer/releases) and commit history for changes between versions.
 
 ## License
 

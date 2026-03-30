@@ -45,6 +45,11 @@ describe('formatValue', () => {
 		expect(formatValue(date, 'date', 120)).toBe('2024-01-15T10:30:00.000Z');
 	});
 
+	it('formats invalid dates without throwing', () => {
+		const date = new Date('invalid');
+		expect(formatValue(date, 'date', 120)).toBe('Invalid Date');
+	});
+
 	it('formats regexp', () => {
 		expect(formatValue(/test/gi, 'regexp', 120)).toBe('/test/gi');
 	});
@@ -85,5 +90,19 @@ describe('formatKey', () => {
 	it('returns stringified numbers', () => {
 		expect(formatKey(0)).toBe('0');
 		expect(formatKey(42)).toBe('42');
+	});
+
+	it('escapes quotes inside keys', () => {
+		expect(formatKey('say "hi"')).toBe('"say \\"hi\\""');
+	});
+
+	it('escapes backslashes inside keys', () => {
+		expect(formatKey('back\\slash')).toBe('"back\\\\slash"');
+	});
+
+	it('escapes newlines and tabs inside keys', () => {
+		expect(formatKey('has\nnewline')).toBe('"has\\nnewline"');
+		expect(formatKey('has\ttab')).toBe('"has\\ttab"');
+		expect(formatKey('has\rreturn')).toBe('"has\\rreturn"');
 	});
 });

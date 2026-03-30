@@ -94,7 +94,6 @@ export type JsonViewerTheme = {
 		expandIcon: string;
 		focusIndicator: string;
 		focusedRowPrefix: string;
-		searchMatch: string;
 		circular: string;
 		truncation: string;
 		preview: string;
@@ -182,10 +181,7 @@ export type TreeState = {
 	visibleFromIndex: number;
 	visibleToIndex: number;
 	maxHeight: number;
-	searchQuery: string;
-	searchMatches: readonly string[];
-	searchMatchIndex: number;
-	isSearching: boolean;
+	showRootBraces: boolean;
 };
 
 /** Reducer actions */
@@ -201,14 +197,10 @@ export type TreeAction =
 	| {type: 'collapse-all'}
 	| {type: 'move-to-parent'}
 	| {type: 'move-to-first-child'}
-	| {type: 'set-search-query'; query: string}
-	| {type: 'next-search-match'}
-	| {type: 'previous-search-match'}
-	| {type: 'enter-search'}
-	| {type: 'exit-search'}
 	| {
 			type: 'reset';
 			nodes: readonly JsonNode[];
 			expandState: ExpandState;
 			maxHeight: number;
+			showRootBraces: boolean;
 	  };

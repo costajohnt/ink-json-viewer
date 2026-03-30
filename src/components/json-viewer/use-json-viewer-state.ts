@@ -1,4 +1,4 @@
-import {useCallback, useMemo, useReducer, useState} from 'react';
+import {useCallback, useEffect, useMemo, useReducer, useRef} from 'react';
 import type {
 	ExpandState,
 	JsonNode,
@@ -13,7 +13,14 @@ export function computeVisibleRows(
 	nodes: readonly JsonNode[],
 	expandState: ExpandState,
 	nodeIndex: ReadonlyMap<string, JsonNode>,
+	showRootBraces = true,
 ): VisibleRow[] {
+	// Determine the root node id (first node, depth 0)
+	const rootNodeId = nodes.length > 0 ? nodes[0]!.id : undefined;
+	const rootNode = rootNodeId ? nodeIndex.get(rootNodeId) : undefined;
+	// Only hide braces when showRootBraces is false AND the root is an expandable container
+	const hideRootBraces = !showRootBraces && rootNode?.isExpandable === true;
+
 	// Pass 1: collect visible node rows, skipping children of collapsed containers
 	const nodeRows: VisibleRow[] = [];
 	let skipUntilDepth = -1;
@@ -27,9 +34,31 @@ export function computeVisibleRows(
 			skipUntilDepth = -1;
 		}
 
+		// When hiding root braces, skip the root container row itself
+		if (hideRootBraces && node.id === rootNodeId) {
+			// If root is expanded, its children will appear; if collapsed, skip all
+			if (!expandState.get(node.id)) {
+				// Root is collapsed and we're hiding braces, so show nothing meaningful.
+				// Still push the root row so there's something to focus on.
+				nodeRows.push({
+					nodeId: node.id,
+					depth: 0,
+					kind: 'node',
+					index: 0,
+				});
+				skipUntilDepth = node.depth;
+			}
+
+			// If expanded, skip the root row but let children through
+			continue;
+		}
+
+		// When hiding root braces, render root's children at depth - 1
+		const depth = hideRootBraces ? Math.max(0, node.depth - 1) : node.depth;
+
 		nodeRows.push({
 			nodeId: node.id,
-			depth: node.depth,
+			depth,
 			kind: 'node',
 			index: 0, // Will be reassigned in pass 2
 		});
@@ -75,11 +104,14 @@ export function computeVisibleRows(
 			&& node?.isExpandable
 			&& expandState.get(node.id)
 		) {
-			openContainers.push({
-				nodeId: node.id,
-				depth: node.depth,
-				type: node.type,
-			});
+			// When hiding root braces, don't track the root as an open container
+			if (!(hideRootBraces && node.id === rootNodeId)) {
+				openContainers.push({
+					nodeId: node.id,
+					depth: row.depth,
+					type: node.type,
+				});
+			}
 		}
 	}
 
@@ -118,13 +150,14 @@ type InitArgs = {
 	nodes: readonly JsonNode[];
 	defaultExpandDepth: number;
 	maxHeight: number;
+	showRootBraces: boolean;
 };
 
 function createInitialState(args: InitArgs): TreeState {
-	const {nodes, defaultExpandDepth, maxHeight} = args;
+	const {nodes, defaultExpandDepth, maxHeight, showRootBraces} = args;
 	const expandState = createDefaultExpandState(nodes, defaultExpandDepth);
 	const nodeIndex = buildNodeIndex(nodes);
-	const visibleRows = computeVisibleRows(nodes, expandState, nodeIndex);
+	const visibleRows = computeVisibleRows(nodes, expandState, nodeIndex, showRootBraces);
 
 	return {
 		nodes,
@@ -136,10 +169,7 @@ function createInitialState(args: InitArgs): TreeState {
 		visibleFromIndex: 0,
 		visibleToIndex: Math.min(maxHeight, visibleRows.length),
 		maxHeight,
-		searchQuery: '',
-		searchMatches: [],
-		searchMatchIndex: -1,
-		isSearching: false,
+		showRootBraces,
 	};
 }
 
@@ -163,7 +193,6 @@ function clampScrollWindow(
 	visibleRowCount: number,
 	maxHeight: number,
 	currentFrom: number,
-	_currentTo: number,
 ): {visibleFromIndex: number; visibleToIndex: number} {
 	let from = currentFrom;
 
@@ -205,7 +234,6 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				state.visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -232,7 +260,6 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				state.visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -298,14 +325,13 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				newExpandState.set(node.id, true);
 			}
 
-			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex);
+			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 			const focusedRowIndex = findRowIndexByNodeId(visibleRows, state.focusedNodeId);
 			const scroll = clampScrollWindow(
 				focusedRowIndex,
 				visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -326,14 +352,13 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			const newExpandState = new Map(state.expandState);
 			newExpandState.set(node.id, true);
 
-			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex);
+			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 			const focusedRowIndex = findRowIndexByNodeId(visibleRows, state.focusedNodeId);
 			const scroll = clampScrollWindow(
 				focusedRowIndex,
 				visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -354,14 +379,13 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			const newExpandState = new Map(state.expandState);
 			newExpandState.delete(node.id);
 
-			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex);
+			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 			const focusedRowIndex = findRowIndexByNodeId(visibleRows, state.focusedNodeId);
 			const scroll = clampScrollWindow(
 				focusedRowIndex,
 				visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -381,24 +405,27 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				}
 			}
 
-			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex);
+			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 			const focusedRowIndex = findRowIndexByNodeId(visibleRows, state.focusedNodeId);
-			const from = Math.max(0, focusedRowIndex - Math.floor(state.maxHeight / 2));
-			const to = Math.min(visibleRows.length, from + state.maxHeight);
+			const scroll = clampScrollWindow(
+				focusedRowIndex,
+				visibleRows.length,
+				state.maxHeight,
+				state.visibleFromIndex,
+			);
 
 			return {
 				...state,
 				expandState: newExpandState,
 				visibleRows,
 				focusedRowIndex,
-				visibleFromIndex: from,
-				visibleToIndex: to,
+				...scroll,
 			};
 		}
 
 		case 'collapse-all': {
 			const newExpandState = new Map<string, boolean>();
-			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex);
+			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 
 			// If focused node is no longer visible, find nearest ancestor that is
 			let focusedNodeId = state.focusedNodeId;
@@ -440,7 +467,6 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				state.visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -464,7 +490,6 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				state.visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
-				state.visibleToIndex,
 			);
 
 			return {
@@ -475,62 +500,13 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			};
 		}
 
-		case 'enter-search': {
-			return {
-				...state,
-				isSearching: true,
-			};
-		}
-
-		case 'exit-search': {
-			return {
-				...state,
-				isSearching: false,
-				searchQuery: '',
-				searchMatches: [],
-				searchMatchIndex: -1,
-			};
-		}
-
-		case 'set-search-query': {
-			return {
-				...state,
-				searchQuery: action.query,
-			};
-		}
-
-		case 'next-search-match': {
-			if (state.searchMatches.length === 0) {
-				return state;
-			}
-
-			const nextMatchIndex = (state.searchMatchIndex + 1) % state.searchMatches.length;
-			return {
-				...state,
-				searchMatchIndex: nextMatchIndex,
-			};
-		}
-
-		case 'previous-search-match': {
-			if (state.searchMatches.length === 0) {
-				return state;
-			}
-
-			const prevMatchIndex = state.searchMatchIndex <= 0
-				? state.searchMatches.length - 1
-				: state.searchMatchIndex - 1;
-			return {
-				...state,
-				searchMatchIndex: prevMatchIndex,
-			};
-		}
-
 		case 'reset': {
 			const newNodeIndex = buildNodeIndex(action.nodes);
 			const visibleRows = computeVisibleRows(
 				action.nodes,
 				action.expandState,
 				newNodeIndex,
+				action.showRootBraces,
 			);
 
 			return {
@@ -543,10 +519,7 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 				visibleFromIndex: 0,
 				visibleToIndex: Math.min(action.maxHeight, visibleRows.length),
 				maxHeight: action.maxHeight,
-				searchQuery: '',
-				searchMatches: [],
-				searchMatchIndex: -1,
-				isSearching: false,
+				showRootBraces: action.showRootBraces,
 			};
 		}
 
@@ -568,11 +541,6 @@ export type JsonViewerState = TreeState & {
 	collapseAll: () => void;
 	moveToParent: () => void;
 	moveToFirstChild: () => void;
-	enterSearch: () => void;
-	exitSearch: () => void;
-	setSearchQuery: (query: string) => void;
-	nextSearchMatch: () => void;
-	prevSearchMatch: () => void;
 };
 
 export function useJsonViewerState(props: {
@@ -599,20 +567,25 @@ export function useJsonViewerState(props: {
 
 	const [state, dispatch] = useReducer(
 		reducer,
-		{nodes, defaultExpandDepth: props.defaultExpandDepth, maxHeight: props.maxHeight},
+		{nodes, defaultExpandDepth: props.defaultExpandDepth, maxHeight: props.maxHeight, showRootBraces: props.showRootBraces},
 		createInitialState,
 	);
 
-	const [previousData, setPreviousData] = useState(props.data);
-	if (props.data !== previousData) {
+	const isFirstRender = useRef(true);
+	useEffect(() => {
+		if (isFirstRender.current) {
+			isFirstRender.current = false;
+			return;
+		}
+
 		dispatch({
 			type: 'reset',
 			nodes,
 			expandState: createDefaultExpandState(nodes, props.defaultExpandDepth),
 			maxHeight: props.maxHeight,
+			showRootBraces: props.showRootBraces,
 		});
-		setPreviousData(props.data);
-	}
+	}, [nodes, props.defaultExpandDepth, props.maxHeight, props.showRootBraces]);
 
 	return {
 		...state,
@@ -648,21 +621,6 @@ export function useJsonViewerState(props: {
 		}, []),
 		moveToFirstChild: useCallback(() => {
 			dispatch({type: 'move-to-first-child'});
-		}, []),
-		enterSearch: useCallback(() => {
-			dispatch({type: 'enter-search'});
-		}, []),
-		exitSearch: useCallback(() => {
-			dispatch({type: 'exit-search'});
-		}, []),
-		setSearchQuery: useCallback((query: string) => {
-			dispatch({type: 'set-search-query', query});
-		}, []),
-		nextSearchMatch: useCallback(() => {
-			dispatch({type: 'next-search-match'});
-		}, []),
-		prevSearchMatch: useCallback(() => {
-			dispatch({type: 'previous-search-match'});
 		}, []),
 	};
 }

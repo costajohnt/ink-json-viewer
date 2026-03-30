@@ -1,6 +1,6 @@
 import React from 'react';
 import {render, Box, Text} from 'ink';
-import {JsonViewer} from '../src/index.js';
+import {JsonViewer} from 'ink-json-viewer';
 
 const sampleData = {
 	name: 'ink-json-viewer',

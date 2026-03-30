@@ -12,21 +12,6 @@ export function useJsonViewer({
 }): void {
 	useInput(
 		(input, key) => {
-			// Search mode input
-			if (state.isSearching) {
-				if (key.escape) {
-					state.exitSearch();
-					return;
-				}
-
-				if (key.return) {
-					state.exitSearch();
-					return;
-				}
-
-				return;
-			}
-
 			// Navigation
 			if (key.downArrow) {
 				state.focusNext();
@@ -97,10 +82,6 @@ export function useJsonViewer({
 				return;
 			}
 
-			// Search (stretch)
-			if (input === '/') {
-				state.enterSearch();
-			}
 		},
 		{isActive},
 	);

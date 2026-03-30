@@ -156,4 +156,36 @@ describe('flattenTree', () => {
 		const nodes = flattenTree({a: 1}, {rootLabel: 'data'});
 		expect(nodes[0]!.key).toBe('data');
 	});
+
+	it('does not flag shared non-expandable objects as circular', () => {
+		const sharedDate = new Date('2024-01-01');
+		const nodes = flattenTree({a: sharedDate, b: sharedDate});
+		const circularNodes = nodes.filter(n => n.isCircular);
+		expect(circularNodes).toHaveLength(0);
+		expect(nodes.find(n => n.key === 'a')!.type).toBe('date');
+		expect(nodes.find(n => n.key === 'b')!.type).toBe('date');
+	});
+
+	it('does not flag shared empty objects as circular', () => {
+		const empty = {};
+		const nodes = flattenTree({a: empty, b: empty});
+		const circularNodes = nodes.filter(n => n.isCircular);
+		expect(circularNodes).toHaveLength(0);
+		expect(nodes.find(n => n.key === 'a')!.type).toBe('object');
+		expect(nodes.find(n => n.key === 'b')!.type).toBe('object');
+	});
+
+	it('does not flag shared RegExp as circular', () => {
+		const re = /test/gi;
+		const nodes = flattenTree({a: re, b: re});
+		const circularNodes = nodes.filter(n => n.isCircular);
+		expect(circularNodes).toHaveLength(0);
+	});
+
+	it('still detects actual circular references', () => {
+		const obj: Record<string, unknown> = {a: 1};
+		obj.self = obj;
+		const nodes = flattenTree(obj);
+		expect(nodes.filter(n => n.isCircular)).toHaveLength(1);
+	});
 });

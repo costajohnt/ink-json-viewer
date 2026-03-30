@@ -3,6 +3,8 @@ import {detectType} from './detect-type.js';
 
 const MAX_DEPTH = 100;
 
+const EXPANDABLE_TYPES = new Set(['object', 'array', 'map', 'set']);
+
 export type FlattenOptions = {
 	sortKeys?: boolean;
 	rootLabel?: string;
@@ -65,10 +67,8 @@ function getEntries(
 
 		case 'map': {
 			const mapEntries: Array<[string | number, unknown]> = [];
-			let index = 0;
 			for (const [k, v] of value as Map<unknown, unknown>) {
 				mapEntries.push([String(k), v]);
-				index++;
 			}
 
 			return mapEntries;
@@ -145,9 +145,8 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 			seen.add(value);
 		}
 
-		const expandableTypes = new Set(['object', 'array', 'map', 'set']);
-		const childCount = expandableTypes.has(type) ? getChildCount(value, type) : 0;
-		const isExpandable = expandableTypes.has(type) && childCount > 0;
+		const childCount = EXPANDABLE_TYPES.has(type) ? getChildCount(value, type) : 0;
+		const isExpandable = EXPANDABLE_TYPES.has(type) && childCount > 0;
 
 		const node: JsonNode = {
 			id,
@@ -171,12 +170,15 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 				node.childIds.push(childId);
 				traverse(childValue, childKey, depth + 1, id);
 			}
+		}
 
-			// Remove from seen after processing children so that shared (non-circular)
-			// references to the same object in sibling branches are not flagged as circular.
-			if (value !== null && typeof value === 'object') {
-				seen.delete(value as object);
-			}
+		// Remove from seen after processing so that shared (non-circular)
+		// references to the same object in sibling branches are not flagged as circular.
+		// This must run for ALL object-typed values, not just expandable ones,
+		// otherwise shared non-expandable objects (Date, RegExp, empty objects/arrays)
+		// would be incorrectly marked as circular.
+		if (value !== null && typeof value === 'object') {
+			seen.delete(value as object);
 		}
 	}
 

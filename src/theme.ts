@@ -11,7 +11,6 @@ export const defaultTheme: JsonViewerTheme = {
 		expandIcon: 'gray',
 		focusIndicator: 'blue',
 		focusedRowPrefix: 'blue',
-		searchMatch: 'yellowBright',
 		circular: 'red',
 		truncation: 'gray',
 		preview: 'gray',

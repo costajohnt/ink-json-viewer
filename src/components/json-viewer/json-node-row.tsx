@@ -41,7 +41,7 @@ export function JsonNodeRow({
 	}
 
 	// Normal node row
-	const indent = ' '.repeat(node.depth * indentWidth);
+	const indent = ' '.repeat(row.depth * indentWidth);
 
 	// Expand/collapse icon
 	let expandIcon = '  ';
