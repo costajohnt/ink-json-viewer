@@ -58,12 +58,12 @@ export function JsonNodeRow({
 			? buildAriaLabel(node, false, row, maxStringLength)
 			: undefined;
 		return (
-			<Box aria-role="listitem">
+			<Box>
 				{ariaLabel && <Text aria-label={ariaLabel}>{''}</Text>}
 				<Text>
 					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 					<Text aria-hidden>{indent}</Text>
-					<Text color={theme.colors.bracket}>{row.closingBracket}</Text>
+					<Text color={theme.colors.bracket} aria-hidden>{row.closingBracket}</Text>
 				</Text>
 			</Box>
 		);
@@ -125,8 +125,17 @@ export function JsonNodeRow({
 				<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 				<Text aria-hidden>{indent}</Text>
 				<Text color={theme.colors.expandIcon} aria-hidden>{expandIcon}</Text>
-				{keyLabel}
-				{valueDisplay}
+				{isScreenReaderEnabled ? (
+					<Text aria-hidden>
+						{keyLabel}
+						{valueDisplay}
+					</Text>
+				) : (
+					<>
+						{keyLabel}
+						{valueDisplay}
+					</>
+				)}
 			</Text>
 		</Box>
 	);
