@@ -58,7 +58,8 @@ export function JsonNodeRow({
 			? buildAriaLabel(node, false, row, maxStringLength)
 			: undefined;
 		return (
-			<Box aria-role="listitem" aria-label={ariaLabel}>
+			<Box aria-role="listitem">
+				{ariaLabel && <Text aria-label={ariaLabel}>{''}</Text>}
 				<Text>
 					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 					<Text aria-hidden>{indent}</Text>
@@ -118,7 +119,8 @@ export function JsonNodeRow({
 		: {selected: isFocused};
 
 	return (
-		<Box aria-role="listitem" aria-label={ariaLabel} aria-state={ariaState}>
+		<Box aria-role="listitem" aria-state={ariaState}>
+			{ariaLabel && <Text aria-label={ariaLabel}>{''}</Text>}
 			<Text>
 				<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 				<Text aria-hidden>{indent}</Text>
