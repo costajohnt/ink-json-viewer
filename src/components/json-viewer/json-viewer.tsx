@@ -44,7 +44,10 @@ export function JsonViewer({
 		state.visibleToIndex,
 	);
 
-	const totalNodes = state.visibleRows.filter(r => r.kind === 'node').length;
+	const totalNodes = useMemo(
+		() => state.visibleRows.filter(r => r.kind === 'node').length,
+		[state.visibleRows],
+	);
 	const containerLabel = rootLabel
 		? `${rootLabel} JSON viewer, ${totalNodes} items`
 		: `JSON viewer, ${totalNodes} items`;

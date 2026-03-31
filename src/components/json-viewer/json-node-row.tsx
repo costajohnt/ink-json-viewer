@@ -18,7 +18,8 @@ type JsonNodeRowProps = {
 
 function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, maxStringLength: number): string {
 	if (row.kind === 'closing-bracket') {
-		return `end of ${node.type === 'array' || node.type === 'set' ? 'array' : 'object'}`;
+		const closingType = node.type === 'array' ? 'array' : node.type === 'set' ? 'set' : node.type === 'map' ? 'map' : 'object';
+		return `end of ${closingType}`;
 	}
 
 	const parts: string[] = [];
@@ -57,7 +58,7 @@ export function JsonNodeRow({
 			? buildAriaLabel(node, false, row, maxStringLength)
 			: undefined;
 		return (
-			<Box aria-role="listitem" aria-label={ariaLabel} aria-hidden={!isScreenReaderEnabled}>
+			<Box aria-role="listitem" aria-label={ariaLabel}>
 				<Text>
 					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 					<Text aria-hidden>{indent}</Text>
