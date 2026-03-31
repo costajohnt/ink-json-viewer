@@ -35,5 +35,5 @@ export function JsonCollapsedPreview({node, theme}: JsonCollapsedPreviewProps) {
 		}
 	}
 
-	return <Text color={theme.colors.preview}>{preview}</Text>;
+	return <Text color={theme.colors.preview} aria-label={`collapsed ${preview}`}>{preview}</Text>;
 }
