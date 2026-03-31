@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/ink-json-viewer.svg)](https://www.npmjs.com/package/ink-json-viewer)
 [![CI](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/costajohnt/ink-json-viewer/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/ink-json-viewer.svg)](https://github.com/costajohnt/ink-json-viewer/blob/master/LICENSE)
+[![license](https://img.shields.io/npm/l/ink-json-viewer.svg)](https://github.com/costajohnt/ink-json-viewer/blob/master/LICENSE) [![npm downloads](https://img.shields.io/npm/dw/ink-json-viewer.svg)](https://www.npmjs.com/package/ink-json-viewer)
 
 <p align="center">
   <img src="media/demo.gif" alt="ink-json-viewer demo" width="600">
