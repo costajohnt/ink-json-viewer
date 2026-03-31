@@ -53,7 +53,8 @@ export function JsonViewer({
 		: `JSON viewer, ${totalNodes} items`;
 
 	return (
-		<Box flexDirection="column" aria-role="list" aria-label={containerLabel}>
+		<Box flexDirection="column" aria-role="list">
+			<Text aria-label={containerLabel}>{''}</Text>
 			{state.visibleFromIndex > 0 && (
 				<Text dimColor aria-hidden>{'  '}\u2191 {state.visibleFromIndex} more</Text>
 			)}
