@@ -1,7 +1,7 @@
 import {type ReactNode} from 'react';
 import {Box, Text} from 'ink';
 import type {JsonNode, JsonViewerTheme, VisibleRow} from '../../types.js';
-import {formatKey} from '../../lib/format-value.js';
+import {formatKey, formatValue} from '../../lib/format-value.js';
 import {JsonValue} from './json-value.js';
 import {JsonCollapsedPreview} from './json-collapsed-preview.js';
 
@@ -13,7 +13,31 @@ type JsonNodeRowProps = {
 	theme: JsonViewerTheme;
 	indentWidth: number;
 	maxStringLength: number;
+	isScreenReaderEnabled: boolean;
 };
+
+function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, maxStringLength: number): string {
+	if (row.kind === 'closing-bracket') {
+		const closingType = node.type === 'array' ? 'array' : node.type === 'set' ? 'set' : node.type === 'map' ? 'map' : 'object';
+		return `end of ${closingType}`;
+	}
+
+	const parts: string[] = [];
+
+	if (node.key !== undefined) {
+		parts.push(typeof node.key === 'number' ? `index ${node.key}` : node.key);
+	}
+
+	if (node.isExpandable) {
+		const typeLabel = node.type === 'array' ? 'array' : node.type === 'set' ? 'set' : node.type === 'map' ? 'map' : 'object';
+		parts.push(`${typeLabel} with ${node.childCount} ${node.childCount === 1 ? 'item' : 'items'}`);
+		parts.push(isExpanded ? 'expanded' : 'collapsed');
+	} else {
+		parts.push(`${node.type}: ${formatValue(node.value, node.type, maxStringLength)}`);
+	}
+
+	return parts.join(', ');
+}
 
 export function JsonNodeRow({
 	row,
@@ -23,17 +47,21 @@ export function JsonNodeRow({
 	theme,
 	indentWidth,
 	maxStringLength,
+	isScreenReaderEnabled,
 }: JsonNodeRowProps) {
 	const focusPrefix = isFocused ? '\u276F ' : '  ';
 
 	// Closing bracket row
 	if (row.kind === 'closing-bracket') {
 		const indent = ' '.repeat(row.depth * indentWidth);
+		const ariaLabel = isScreenReaderEnabled
+			? buildAriaLabel(node, false, row, maxStringLength)
+			: undefined;
 		return (
-			<Box>
+			<Box aria-role="listitem" aria-label={ariaLabel}>
 				<Text>
-					<Text color={theme.colors.focusIndicator}>{focusPrefix}</Text>
-					<Text>{indent}</Text>
+					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
+					<Text aria-hidden>{indent}</Text>
 					<Text color={theme.colors.bracket}>{row.closingBracket}</Text>
 				</Text>
 			</Box>
@@ -81,12 +109,20 @@ export function JsonNodeRow({
 		);
 	}
 
+	const ariaLabel = isScreenReaderEnabled
+		? buildAriaLabel(node, isExpanded, row, maxStringLength)
+		: undefined;
+
+	const ariaState = node.isExpandable
+		? {expanded: isExpanded, selected: isFocused}
+		: {selected: isFocused};
+
 	return (
-		<Box>
+		<Box aria-role="listitem" aria-label={ariaLabel} aria-state={ariaState}>
 			<Text>
-				<Text color={theme.colors.focusIndicator}>{focusPrefix}</Text>
-				<Text>{indent}</Text>
-				<Text color={theme.colors.expandIcon}>{expandIcon}</Text>
+				<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
+				<Text aria-hidden>{indent}</Text>
+				<Text color={theme.colors.expandIcon} aria-hidden>{expandIcon}</Text>
 				{keyLabel}
 				{valueDisplay}
 			</Text>

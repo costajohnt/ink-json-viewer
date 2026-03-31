@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {Box, Text} from 'ink';
+import {Box, Text, useIsScreenReaderEnabled} from 'ink';
 import type {JsonViewerProps} from '../../types.js';
 import {defaultTheme, mergeTheme} from '../../theme.js';
 import {useJsonViewerState} from './use-json-viewer-state.js';
@@ -37,15 +37,25 @@ export function JsonViewer({
 
 	useJsonViewer({state, isActive: enableKeyboard && isActive, onSelect});
 
+	const isScreenReaderEnabled = useIsScreenReaderEnabled();
+
 	const visibleSlice = state.visibleRows.slice(
 		state.visibleFromIndex,
 		state.visibleToIndex,
 	);
 
+	const totalNodes = useMemo(
+		() => state.visibleRows.filter(r => r.kind === 'node').length,
+		[state.visibleRows],
+	);
+	const containerLabel = rootLabel
+		? `${rootLabel} JSON viewer, ${totalNodes} items`
+		: `JSON viewer, ${totalNodes} items`;
+
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" aria-role="list" aria-label={containerLabel}>
 			{state.visibleFromIndex > 0 && (
-				<Text dimColor>{'  '}\u2191 {state.visibleFromIndex} more</Text>
+				<Text dimColor aria-hidden>{'  '}\u2191 {state.visibleFromIndex} more</Text>
 			)}
 			{visibleSlice.map(row => (
 				<JsonNodeRow
@@ -59,10 +69,11 @@ export function JsonViewer({
 					theme={theme}
 					indentWidth={indentWidth}
 					maxStringLength={maxStringLength}
+					isScreenReaderEnabled={isScreenReaderEnabled}
 				/>
 			))}
 			{state.visibleToIndex < state.visibleRows.length && (
-				<Text dimColor>{'  '}\u2193 {state.visibleRows.length - state.visibleToIndex} more</Text>
+				<Text dimColor aria-hidden>{'  '}\u2193 {state.visibleRows.length - state.visibleToIndex} more</Text>
 			)}
 		</Box>
 	);
