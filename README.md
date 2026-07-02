@@ -27,18 +27,17 @@ Interactive, collapsible JSON tree viewer component for [Ink](https://github.com
 npm install ink-json-viewer
 ```
 
-Peer dependencies: `ink >= 5.0.0` and `react >= 18.0.0`.
+Peer dependencies: `ink >= 6.0.0` and `react >= 19.0.0`. Requires Node.js `>= 20`.
 
 ## Quick Start
 
 ```tsx
-import React from 'react';
 import {render} from 'ink';
 import {JsonViewer} from 'ink-json-viewer';
 
 const data = {
   name: 'ink-json-viewer',
-  version: '0.1.0',
+  version: '0.2.1',
   features: ['collapsible', 'keyboard nav', 'syntax coloring'],
   config: {maxHeight: 20, theme: 'default'},
   active: true,
@@ -161,18 +160,18 @@ Override any color by passing a partial `theme` prop:
 
 All color values are Ink/Chalk color names (e.g., `'red'`, `'greenBright'`, `'gray'`).
 
-Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `focusedRowPrefix`, `circular`, `truncation`, `preview`.
+Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `circular`, `preview`.
 
 ## Large Data
 
-The component handles large data sets efficiently through:
+The component keeps rendering cheap even for large data sets:
 
-- **Flat node list**: The tree is flattened into a single array during the initial pass, avoiding recursive rendering.
-- **Virtual scrolling**: Only `maxHeight` rows are rendered at any time, keeping DOM size constant regardless of data size.
-- **Lazy visibility**: Collapsed subtrees are skipped entirely when computing visible rows.
+- **Eager flatten, then windowed render**: `flattenTree` walks the entire input once up front, so the initial flatten is `O(total nodes)`. After that, only the visible window is rendered.
+- **Virtual scrolling**: Only `maxHeight` rows are rendered at any time, keeping the rendered output size constant regardless of data size.
+- **Collapsed subtrees skipped on render**: Children of collapsed containers are skipped at the visible-row computation stage, so a collapsed tree stays cheap to display even though every node was flattened.
 - **Immutable state updates**: The reducer produces new state objects without mutating previous state.
 
-For data with 10,000+ nodes, set `defaultExpandDepth` to `0` or `1` and rely on `maxHeight` (default 20) to keep the initial render fast. Users can expand sections on demand.
+The whole input is flattened up front, so extremely large inputs still pay an `O(total nodes)` cost per data change. For data with 10,000+ nodes, set `defaultExpandDepth` to `0` or `1` and rely on `maxHeight` (default 20) to keep the render fast. Users can expand sections on demand.
 
 ## Headless Usage
 
