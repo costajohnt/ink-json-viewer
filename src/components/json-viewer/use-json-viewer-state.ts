@@ -1,4 +1,6 @@
-import {useCallback, useEffect, useMemo, useReducer, useRef} from 'react';
+import {
+	useCallback, useEffect, useMemo, useReducer, useRef,
+} from 'react';
 import type {
 	ExpandState,
 	JsonNode,
@@ -99,19 +101,18 @@ export function computeVisibleRows(
 
 		// If this is an expanded container, push to stack
 		const node = nodeIndex.get(row.nodeId);
+		// When hiding root braces, don't track the root as an open container
 		if (
 			row.kind === 'node'
 			&& node?.isExpandable
 			&& expandState.get(node.id)
+			&& !(hideRootBraces && node.id === rootNodeId)
 		) {
-			// When hiding root braces, don't track the root as an open container
-			if (!(hideRootBraces && node.id === rootNodeId)) {
-				openContainers.push({
-					nodeId: node.id,
-					depth: row.depth,
-					type: node.type,
-				});
-			}
+			openContainers.push({
+				nodeId: node.id,
+				depth: row.depth,
+				type: node.type,
+			});
 		}
 	}
 
@@ -185,7 +186,7 @@ function findRowIndexByNodeId(
 	const index = visibleRows.findIndex(
 		r => r.nodeId === nodeId && r.kind === 'node',
 	);
-	return index >= 0 ? index : 0;
+	return Math.max(index, 0);
 }
 
 function clampScrollWindow(
@@ -428,16 +429,17 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			const visibleRows = computeVisibleRows(state.nodes, newExpandState, nodeIndex, state.showRootBraces);
 
 			// If focused node is no longer visible, find nearest ancestor that is
-			let focusedNodeId = state.focusedNodeId;
+			let {focusedNodeId} = state;
 			let focusedRowIndex = findRowIndexByNodeId(visibleRows, focusedNodeId);
 
 			if (focusedNodeId && !visibleRows.some(r => r.nodeId === focusedNodeId && r.kind === 'node')) {
 				// Walk up parents
 				let current = nodeIndex.get(focusedNodeId);
 				while (current?.parentId) {
-					current = nodeIndex.get(current.parentId);
-					if (current && visibleRows.some(r => r.nodeId === current!.id && r.kind === 'node')) {
-						focusedNodeId = current.id;
+					const ancestor = nodeIndex.get(current.parentId);
+					current = ancestor;
+					if (ancestor && visibleRows.some(r => r.nodeId === ancestor.id && r.kind === 'node')) {
+						focusedNodeId = ancestor.id;
 						focusedRowIndex = findRowIndexByNodeId(visibleRows, focusedNodeId);
 						break;
 					}
@@ -534,7 +536,7 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			// Preserve focus if possible
 			const oldFocusedId = state.focusedNodeId;
 			let focusedRowIndex = visibleRows.findIndex(
-				(r) => r.kind === 'node' && r.nodeId === oldFocusedId,
+				r => r.kind === 'node' && r.nodeId === oldFocusedId,
 			);
 			if (focusedRowIndex === -1) {
 				focusedRowIndex = 0;
@@ -603,7 +605,12 @@ export function useJsonViewerState(props: {
 
 	const [state, dispatch] = useReducer(
 		reducer,
-		{nodes, defaultExpandDepth: props.defaultExpandDepth, maxHeight: props.maxHeight, showRootBraces: props.showRootBraces},
+		{
+			nodes,
+			defaultExpandDepth: props.defaultExpandDepth,
+			maxHeight: props.maxHeight,
+			showRootBraces: props.showRootBraces,
+		},
 		createInitialState,
 	);
 

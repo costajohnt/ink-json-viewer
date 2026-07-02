@@ -196,14 +196,14 @@ export type TreeAction =
 	| {type: 'move-to-parent'}
 	| {type: 'move-to-first-child'}
 	| {
-			type: 'reset';
-			nodes: readonly JsonNode[];
-			expandState: ExpandState;
-			maxHeight: number;
-			showRootBraces: boolean;
-	  }
+		type: 'reset';
+		nodes: readonly JsonNode[];
+		expandState: ExpandState;
+		maxHeight: number;
+		showRootBraces: boolean;
+	}
 	| {
-			type: 'update-viewport';
-			maxHeight: number;
-			showRootBraces: boolean;
-	  };
+		type: 'update-viewport';
+		maxHeight: number;
+		showRootBraces: boolean;
+	};

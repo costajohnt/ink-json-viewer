@@ -54,7 +54,7 @@ export function JsonViewer({
 
 	return (
 		<Box flexDirection="column" aria-role="list">
-			<Text aria-label={containerLabel}>{''}</Text>
+			<Text aria-label={containerLabel} />
 			{state.visibleFromIndex > 0 && (
 				<Text dimColor aria-hidden>{`  \u2191 ${state.visibleFromIndex} more`}</Text>
 			)}
@@ -64,9 +64,7 @@ export function JsonViewer({
 					row={row}
 					node={state.nodeIndex.get(row.nodeId)!}
 					isExpanded={state.expandState.get(row.nodeId) ?? false}
-					isFocused={
-						row.kind === 'node' && row.nodeId === state.focusedNodeId
-					}
+					isFocused={row.kind === 'node' && row.nodeId === state.focusedNodeId}
 					theme={theme}
 					indentWidth={indentWidth}
 					maxStringLength={maxStringLength}

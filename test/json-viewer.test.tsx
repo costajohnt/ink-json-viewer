@@ -58,7 +58,9 @@ describe('JsonViewer', () => {
 	it('renders with syntax coloring indicators', () => {
 		const {lastFrame} = render(
 			<JsonViewer
-				data={{str: 'hello', num: 42, bool: true, nil: null}}
+				data={{
+					str: 'hello', num: 42, bool: true, nil: null,
+				}}
 				defaultExpandDepth={1}
 				enableKeyboard={false}
 			/>,
