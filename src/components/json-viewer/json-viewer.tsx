@@ -56,7 +56,7 @@ export function JsonViewer({
 		<Box flexDirection="column" aria-role="list">
 			<Text aria-label={containerLabel}>{''}</Text>
 			{state.visibleFromIndex > 0 && (
-				<Text dimColor aria-hidden>{'  '}\u2191 {state.visibleFromIndex} more</Text>
+				<Text dimColor aria-hidden>{`  \u2191 ${state.visibleFromIndex} more`}</Text>
 			)}
 			{visibleSlice.map(row => (
 				<JsonNodeRow
@@ -74,7 +74,7 @@ export function JsonViewer({
 				/>
 			))}
 			{state.visibleToIndex < state.visibleRows.length && (
-				<Text dimColor aria-hidden>{'  '}\u2193 {state.visibleRows.length - state.visibleToIndex} more</Text>
+				<Text dimColor aria-hidden>{`  \u2193 ${state.visibleRows.length - state.visibleToIndex} more`}</Text>
 			)}
 		</Box>
 	);

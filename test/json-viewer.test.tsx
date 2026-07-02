@@ -107,6 +107,21 @@ describe('JsonViewer', () => {
 		expect(output).toContain('more');
 	});
 
+	it('renders real arrow glyphs (not escape sequences) in scroll indicators', () => {
+		const data = Object.fromEntries(
+			Array.from({length: 40}, (_, i) => [`key${i}`, i]),
+		);
+		const {lastFrame} = render(
+			<JsonViewer data={data} defaultExpandDepth={1} maxHeight={5} enableKeyboard={false} />,
+		);
+		const output = lastFrame()!;
+		// The bottom scroll indicator must use the real down-arrow glyph...
+		expect(output).toContain('\u2193');
+		// ...and must NOT contain the literal backslash-u escape sequence.
+		expect(output).not.toContain(String.raw`\u2193`);
+		expect(output).not.toContain(String.raw`\u2191`);
+	});
+
 	it('renders the focus indicator on the first row', () => {
 		const {lastFrame} = render(
 			<JsonViewer data={{a: 1}} defaultExpandDepth={0} />,
