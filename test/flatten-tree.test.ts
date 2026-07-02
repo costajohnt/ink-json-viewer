@@ -188,4 +188,59 @@ describe('flattenTree', () => {
 		const nodes = flattenTree(obj);
 		expect(nodes.filter(n => n.isCircular)).toHaveLength(1);
 	});
+
+	it('gives unambiguous ids when a dotted key collides with a nested path', () => {
+		const nodes = flattenTree({'a.b': 1, a: {b: 2}});
+		const ids = nodes.map(n => n.id);
+		// All ids are unique (no collision between "a.b" leaf and a -> b)
+		expect(new Set(ids).size).toBe(ids.length);
+
+		const dotted = nodes.find(n => n.key === 'a.b')!;
+		const aChildB = nodes.find(n => n.parentId !== '$' && n.key === 'b')!;
+		expect(dotted.value).toBe(1);
+		expect(aChildB.value).toBe(2);
+		expect(dotted.id).not.toBe(aChildB.id);
+	});
+
+	it('gives unambiguous ids when a bracketed key collides with an array index', () => {
+		const nodes = flattenTree({foo: ['x'], 'foo[0]': 'y'});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		const arrayItem = nodes.find(n => n.parentId === '$.foo' && n.key === 0)!;
+		const bracketKey = nodes.find(n => n.key === 'foo[0]')!;
+		expect(arrayItem.value).toBe('x');
+		expect(bracketKey.value).toBe('y');
+		expect(arrayItem.id).not.toBe(bracketKey.id);
+	});
+
+	it('escapes % before the delimiters so a key that looks pre-encoded stays distinct', () => {
+		// Guards the escape ORDER in encodeKeySegment: 'a.b' encodes to
+		// "a%2Eb", and the literal key "a%2Eb" must NOT encode to the same
+		// thing. If '%' were escaped after '.', both would become "a%252Eb".
+		const nodes = flattenTree({'a.b': 1, 'a%2Eb': 2});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+		expect(nodes.find(n => n.key === 'a.b')!.id).not.toBe(
+			nodes.find(n => n.key === 'a%2Eb')!.id,
+		);
+	});
+
+	it('keeps ids distinct for keys that collide only on the % escape', () => {
+		const nodes = flattenTree({'50%': 1, '50%25': 2});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+	});
+
+	it('gives unambiguous ids for a deeply-nested dotted-key collision', () => {
+		const nodes = flattenTree({'a.b.c': 1, a: {b: {c: 2}}});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		const dotted = nodes.find(n => n.key === 'a.b.c')!;
+		const deepLeaf = nodes.find(n => n.parentId === '$.a.b' && n.key === 'c')!;
+		expect(dotted.value).toBe(1);
+		expect(deepLeaf.value).toBe(2);
+		expect(dotted.id).not.toBe(deepLeaf.id);
+	});
 });

@@ -21,4 +21,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx tsc --noEmit
+      # xo's bundled eslint-plugin-ava needs Node >= 20.11 (import.meta.filename);
+      # run lint only on the Node 22 matrix entry to keep it reliable.
+      - run: npm run lint
+        if: matrix.node-version == 22
       - run: npm test

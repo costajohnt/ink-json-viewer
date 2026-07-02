@@ -1,10 +1,9 @@
-import React from 'react';
 import {render, Box, Text} from 'ink';
 import {JsonViewer} from 'ink-json-viewer';
 
 const sampleData = {
 	name: 'ink-json-viewer',
-	version: '0.1.0',
+	version: '0.3.0',
 	description: 'Interactive JSON tree viewer for Ink',
 	features: ['collapsible', 'keyboard navigation', 'syntax coloring', 'virtual scrolling'],
 	config: {

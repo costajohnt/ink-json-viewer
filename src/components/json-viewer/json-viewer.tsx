@@ -54,9 +54,9 @@ export function JsonViewer({
 
 	return (
 		<Box flexDirection="column" aria-role="list">
-			<Text aria-label={containerLabel}>{''}</Text>
+			<Text aria-label={containerLabel} />
 			{state.visibleFromIndex > 0 && (
-				<Text dimColor aria-hidden>{'  '}\u2191 {state.visibleFromIndex} more</Text>
+				<Text dimColor aria-hidden>{`  \u2191 ${state.visibleFromIndex} more`}</Text>
 			)}
 			{visibleSlice.map(row => (
 				<JsonNodeRow
@@ -64,9 +64,7 @@ export function JsonViewer({
 					row={row}
 					node={state.nodeIndex.get(row.nodeId)!}
 					isExpanded={state.expandState.get(row.nodeId) ?? false}
-					isFocused={
-						row.kind === 'node' && row.nodeId === state.focusedNodeId
-					}
+					isFocused={row.kind === 'node' && row.nodeId === state.focusedNodeId}
 					theme={theme}
 					indentWidth={indentWidth}
 					maxStringLength={maxStringLength}
@@ -74,7 +72,7 @@ export function JsonViewer({
 				/>
 			))}
 			{state.visibleToIndex < state.visibleRows.length && (
-				<Text dimColor aria-hidden>{'  '}\u2193 {state.visibleRows.length - state.visibleToIndex} more</Text>
+				<Text dimColor aria-hidden>{`  \u2193 ${state.visibleRows.length - state.visibleToIndex} more`}</Text>
 			)}
 		</Box>
 	);

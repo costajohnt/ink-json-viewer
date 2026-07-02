@@ -10,9 +10,7 @@ export const defaultTheme: JsonViewerTheme = {
 		bracket: 'gray',
 		expandIcon: 'gray',
 		focusIndicator: 'blue',
-		focusedRowPrefix: 'blue',
 		circular: 'red',
-		truncation: 'gray',
 		preview: 'gray',
 	},
 };

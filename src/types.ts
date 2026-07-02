@@ -93,9 +93,7 @@ export type JsonViewerTheme = {
 		bracket: string;
 		expandIcon: string;
 		focusIndicator: string;
-		focusedRowPrefix: string;
 		circular: string;
-		truncation: string;
 		preview: string;
 	};
 };
@@ -198,14 +196,14 @@ export type TreeAction =
 	| {type: 'move-to-parent'}
 	| {type: 'move-to-first-child'}
 	| {
-			type: 'reset';
-			nodes: readonly JsonNode[];
-			expandState: ExpandState;
-			maxHeight: number;
-			showRootBraces: boolean;
-	  }
+		type: 'reset';
+		nodes: readonly JsonNode[];
+		expandState: ExpandState;
+		maxHeight: number;
+		showRootBraces: boolean;
+	}
 	| {
-			type: 'update-viewport';
-			maxHeight: number;
-			showRootBraces: boolean;
-	  };
+		type: 'update-viewport';
+		maxHeight: number;
+		showRootBraces: boolean;
+	};

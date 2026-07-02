@@ -1,14 +1,29 @@
 import type {JsonNode} from '../types.js';
 import {detectType} from './detect-type.js';
 
-const MAX_DEPTH = 100;
+const maxDepth = 100;
 
-const EXPANDABLE_TYPES = new Set(['object', 'array', 'map', 'set']);
+const expandableTypes = new Set(['object', 'array', 'map', 'set']);
 
 export type FlattenOptions = {
 	sortKeys?: boolean;
 	rootLabel?: string;
 };
+
+/**
+ * Percent-encode the delimiter characters used to build node ids so that
+ * object keys containing '.', '[', ']' (or '%' itself) cannot collide with
+ * the structural separators. '%' is escaped first to keep the encoding
+ * injective. Object keys are prefixed with '.', array indices with '[n]',
+ * so the two spaces never overlap.
+ */
+function encodeKeySegment(key: string): string {
+	return key
+		.replaceAll('%', '%25')
+		.replaceAll('.', '%2E')
+		.replaceAll('[', '%5B')
+		.replaceAll(']', '%5D');
+}
 
 function buildPath(parentId: string | undefined, key: string | number | undefined): string {
 	if (parentId === undefined) {
@@ -19,7 +34,7 @@ function buildPath(parentId: string | undefined, key: string | number | undefine
 		return `${parentId}[${key}]`;
 	}
 
-	return `${parentId}.${key as string}`;
+	return `${parentId}.${encodeKeySegment(key!)}`;
 }
 
 function getChildCount(value: unknown, type: string): number {
@@ -105,7 +120,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 		const type = detectType(value);
 		const id = buildPath(parentId, key);
 
-		if (depth > MAX_DEPTH) {
+		if (depth > maxDepth) {
 			nodes.push({
 				id,
 				depth,
@@ -145,8 +160,8 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 			seen.add(value);
 		}
 
-		const childCount = EXPANDABLE_TYPES.has(type) ? getChildCount(value, type) : 0;
-		const isExpandable = EXPANDABLE_TYPES.has(type) && childCount > 0;
+		const childCount = expandableTypes.has(type) ? getChildCount(value, type) : 0;
+		const isExpandable = expandableTypes.has(type) && childCount > 0;
 
 		const node: JsonNode = {
 			id,
@@ -178,7 +193,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 		// otherwise shared non-expandable objects (Date, RegExp, empty objects/arrays)
 		// would be incorrectly marked as circular.
 		if (value !== null && typeof value === 'object') {
-			seen.delete(value as object);
+			seen.delete(value);
 		}
 	}
 

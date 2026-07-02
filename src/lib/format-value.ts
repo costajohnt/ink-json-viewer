@@ -48,7 +48,7 @@ export function formatValue(
 
 		case 'date': {
 			const d = value as Date;
-			return isNaN(d.getTime()) ? 'Invalid Date' : d.toISOString();
+			return Number.isNaN(d.getTime()) ? 'Invalid Date' : d.toISOString();
 		}
 
 		case 'regexp': {
@@ -64,7 +64,10 @@ export function formatValue(
 		}
 
 		case 'function': {
-			const name = (value as Function).name || 'anonymous'; // eslint-disable-line @typescript-eslint/ban-types
+			// Anonymous functions have an empty-string name, so `||` (not `??`)
+			// is intentional here to fall back to 'anonymous'.
+			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+			const name = (value as {name?: string}).name || 'anonymous';
 			return `[Function: ${name}]`;
 		}
 
@@ -99,7 +102,7 @@ export function formatKey(key: string | number): string {
 		return String(key);
 	}
 
-	if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)) {
+	if (/^[a-zA-Z_$][\w$]*$/.test(key)) {
 		return key;
 	}
 

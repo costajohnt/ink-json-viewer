@@ -58,7 +58,9 @@ describe('JsonViewer', () => {
 	it('renders with syntax coloring indicators', () => {
 		const {lastFrame} = render(
 			<JsonViewer
-				data={{str: 'hello', num: 42, bool: true, nil: null}}
+				data={{
+					str: 'hello', num: 42, bool: true, nil: null,
+				}}
 				defaultExpandDepth={1}
 				enableKeyboard={false}
 			/>,
@@ -105,6 +107,21 @@ describe('JsonViewer', () => {
 		const output = lastFrame()!;
 		// Should show "more" indicator
 		expect(output).toContain('more');
+	});
+
+	it('renders real arrow glyphs (not escape sequences) in scroll indicators', () => {
+		const data = Object.fromEntries(
+			Array.from({length: 40}, (_, i) => [`key${i}`, i]),
+		);
+		const {lastFrame} = render(
+			<JsonViewer data={data} defaultExpandDepth={1} maxHeight={5} enableKeyboard={false} />,
+		);
+		const output = lastFrame()!;
+		// The bottom scroll indicator must use the real down-arrow glyph...
+		expect(output).toContain('\u2193');
+		// ...and must NOT contain the literal backslash-u escape sequence.
+		expect(output).not.toContain(String.raw`\u2193`);
+		expect(output).not.toContain(String.raw`\u2191`);
 	});
 
 	it('renders the focus indicator on the first row', () => {

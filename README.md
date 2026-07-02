@@ -27,18 +27,17 @@ Interactive, collapsible JSON tree viewer component for [Ink](https://github.com
 npm install ink-json-viewer
 ```
 
-Peer dependencies: `ink >= 5.0.0` and `react >= 18.0.0`.
+Peer dependencies: `ink >= 6.0.0` and `react >= 19.0.0`. Requires Node.js `>= 20`.
 
 ## Quick Start
 
 ```tsx
-import React from 'react';
 import {render} from 'ink';
 import {JsonViewer} from 'ink-json-viewer';
 
 const data = {
   name: 'ink-json-viewer',
-  version: '0.1.0',
+  version: '0.3.0',
   features: ['collapsible', 'keyboard nav', 'syntax coloring'],
   config: {maxHeight: 20, theme: 'default'},
   active: true,
@@ -60,7 +59,7 @@ render(<JsonViewer data={data} defaultExpandDepth={1} />);
 | `enableKeyboard` | `boolean` | `true` | Enable keyboard navigation and interaction. |
 | `indentWidth` | `number` | `2` | Number of spaces per indentation level. |
 | `maxStringLength` | `number` | `120` | Maximum display length for string values before truncation (includes quotes). |
-| `onSelect` | `(path: string, value: unknown) => void` | `undefined` | Called when Enter is pressed on a leaf node. Receives the JSON path and raw value. |
+| `onSelect` | `(path: string, value: unknown) => void` | `undefined` | Called when Enter is pressed on a leaf node. Receives the node id and raw value. The id is a bespoke path (e.g. `$.users[0].name`), not spec JSONPath: each string key segment has `.`, `[`, `]`, and `%` percent-encoded, so a key like `a.b` arrives as `$.a%2Eb`. |
 | `theme` | `Partial<JsonViewerTheme>` | `undefined` | Partial theme overrides merged with the default theme. |
 | `isActive` | `boolean` | `true` | Whether the component is focused/active for keyboard input. Useful when embedding alongside other interactive components. |
 | `rootLabel` | `string` | `undefined` | Label to display for the root node (e.g., the variable name). |
@@ -161,18 +160,18 @@ Override any color by passing a partial `theme` prop:
 
 All color values are Ink/Chalk color names (e.g., `'red'`, `'greenBright'`, `'gray'`).
 
-Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `focusedRowPrefix`, `circular`, `truncation`, `preview`.
+Available theme keys: `string`, `number`, `boolean`, `null`, `key`, `bracket`, `expandIcon`, `focusIndicator`, `circular`, `preview`.
 
 ## Large Data
 
-The component handles large data sets efficiently through:
+The component keeps rendering cheap even for large data sets:
 
-- **Flat node list**: The tree is flattened into a single array during the initial pass, avoiding recursive rendering.
-- **Virtual scrolling**: Only `maxHeight` rows are rendered at any time, keeping DOM size constant regardless of data size.
-- **Lazy visibility**: Collapsed subtrees are skipped entirely when computing visible rows.
+- **Eager flatten, then windowed render**: `flattenTree` walks the entire input once up front, so the initial flatten is `O(total nodes)`. After that, only the visible window is rendered.
+- **Virtual scrolling**: Only `maxHeight` rows are rendered at any time, keeping the rendered output size constant regardless of data size.
+- **Collapsed subtrees skipped on render**: Children of collapsed containers are skipped at the visible-row computation stage, so a collapsed tree stays cheap to display even though every node was flattened.
 - **Immutable state updates**: The reducer produces new state objects without mutating previous state.
 
-For data with 10,000+ nodes, set `defaultExpandDepth` to `0` or `1` and rely on `maxHeight` (default 20) to keep the initial render fast. Users can expand sections on demand.
+The whole input is flattened up front, so extremely large inputs still pay an `O(total nodes)` cost per data change. For data with 10,000+ nodes, set `defaultExpandDepth` to `0` or `1` and rely on `maxHeight` (default 20) to keep the render fast. Users can expand sections on demand.
 
 ## Headless Usage
 

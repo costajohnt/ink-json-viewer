@@ -20,7 +20,7 @@ describe('edge cases', () => {
 
 	it('renders boolean data', () => {
 		const {lastFrame} = render(
-			<JsonViewer data={true} enableKeyboard={false} />,
+			<JsonViewer data enableKeyboard={false} />,
 		);
 		expect(lastFrame()!).toContain('true');
 	});
@@ -68,7 +68,7 @@ describe('edge cases', () => {
 	it('renders with objects containing special-character keys', () => {
 		const {lastFrame} = render(
 			<JsonViewer
-				data={{'has space': 1, 'normal': 2}}
+				data={{'has space': 1, normal: 2}}
 				defaultExpandDepth={1}
 				enableKeyboard={false}
 			/>,

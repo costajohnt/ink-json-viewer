@@ -16,10 +16,29 @@ type JsonNodeRowProps = {
 	isScreenReaderEnabled: boolean;
 };
 
+function containerTypeLabel(type: JsonNode['type']): string {
+	switch (type) {
+		case 'array': {
+			return 'array';
+		}
+
+		case 'set': {
+			return 'set';
+		}
+
+		case 'map': {
+			return 'map';
+		}
+
+		default: {
+			return 'object';
+		}
+	}
+}
+
 function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, maxStringLength: number): string {
 	if (row.kind === 'closing-bracket') {
-		const closingType = node.type === 'array' ? 'array' : node.type === 'set' ? 'set' : node.type === 'map' ? 'map' : 'object';
-		return `end of ${closingType}`;
+		return `end of ${containerTypeLabel(node.type)}`;
 	}
 
 	const parts: string[] = [];
@@ -29,9 +48,11 @@ function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, ma
 	}
 
 	if (node.isExpandable) {
-		const typeLabel = node.type === 'array' ? 'array' : node.type === 'set' ? 'set' : node.type === 'map' ? 'map' : 'object';
-		parts.push(`${typeLabel} with ${node.childCount} ${node.childCount === 1 ? 'item' : 'items'}`);
-		parts.push(isExpanded ? 'expanded' : 'collapsed');
+		const typeLabel = containerTypeLabel(node.type);
+		parts.push(
+			`${typeLabel} with ${node.childCount} ${node.childCount === 1 ? 'item' : 'items'}`,
+			isExpanded ? 'expanded' : 'collapsed',
+		);
 	} else {
 		parts.push(`${node.type}: ${formatValue(node.value, node.type, maxStringLength)}`);
 	}
@@ -59,7 +80,7 @@ export function JsonNodeRow({
 			: undefined;
 		return (
 			<Box>
-				{ariaLabel && <Text aria-label={ariaLabel}>{''}</Text>}
+				{ariaLabel ? <Text aria-label={ariaLabel} /> : null}
 				<Text>
 					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 					<Text aria-hidden>{indent}</Text>
@@ -120,22 +141,24 @@ export function JsonNodeRow({
 
 	return (
 		<Box aria-role="listitem" aria-state={ariaState}>
-			{ariaLabel && <Text aria-label={ariaLabel}>{''}</Text>}
+			{ariaLabel ? <Text aria-label={ariaLabel} /> : null}
 			<Text>
 				<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 				<Text aria-hidden>{indent}</Text>
 				<Text color={theme.colors.expandIcon} aria-hidden>{expandIcon}</Text>
-				{isScreenReaderEnabled ? (
-					<Text aria-hidden>
-						{keyLabel}
-						{valueDisplay}
-					</Text>
-				) : (
-					<>
-						{keyLabel}
-						{valueDisplay}
-					</>
-				)}
+				{isScreenReaderEnabled
+					? (
+						<Text aria-hidden>
+							{keyLabel}
+							{valueDisplay}
+						</Text>
+					)
+					: (
+						<>
+							{keyLabel}
+							{valueDisplay}
+						</>
+					)}
 			</Text>
 		</Box>
 	);

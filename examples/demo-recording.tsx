@@ -1,4 +1,3 @@
-import React from 'react';
 import {render, Box, Text} from 'ink';
 import {JsonViewer} from 'ink-json-viewer';
 

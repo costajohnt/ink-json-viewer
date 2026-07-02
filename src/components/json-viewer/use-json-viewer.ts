@@ -3,7 +3,7 @@ import type {JsonViewerState} from './use-json-viewer-state.js';
 
 export function useJsonViewer({
 	state,
-	isActive = true,
+	isActive,
 	onSelect,
 }: {
 	state: JsonViewerState;
@@ -27,10 +27,10 @@ export function useJsonViewer({
 			if (key.rightArrow) {
 				const node = state.nodeIndex.get(state.focusedNodeId ?? '');
 				if (node?.isExpandable) {
-					if (!state.expandState.get(node.id)) {
-						state.expandFocused();
-					} else {
+					if (state.expandState.get(node.id)) {
 						state.moveToFirstChild();
+					} else {
+						state.expandFocused();
 					}
 				}
 
@@ -79,9 +79,7 @@ export function useJsonViewer({
 
 			if (input === '-' || input === 'E') {
 				state.collapseAll();
-				return;
 			}
-
 		},
 		{isActive},
 	);
