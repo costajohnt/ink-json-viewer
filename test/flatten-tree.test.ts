@@ -213,4 +213,34 @@ describe('flattenTree', () => {
 		expect(bracketKey.value).toBe('y');
 		expect(arrayItem.id).not.toBe(bracketKey.id);
 	});
+
+	it('escapes % before the delimiters so a key that looks pre-encoded stays distinct', () => {
+		// Guards the escape ORDER in encodeKeySegment: 'a.b' encodes to
+		// "a%2Eb", and the literal key "a%2Eb" must NOT encode to the same
+		// thing. If '%' were escaped after '.', both would become "a%252Eb".
+		const nodes = flattenTree({'a.b': 1, 'a%2Eb': 2});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+		expect(nodes.find(n => n.key === 'a.b')!.id).not.toBe(
+			nodes.find(n => n.key === 'a%2Eb')!.id,
+		);
+	});
+
+	it('keeps ids distinct for keys that collide only on the % escape', () => {
+		const nodes = flattenTree({'50%': 1, '50%25': 2});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+	});
+
+	it('gives unambiguous ids for a deeply-nested dotted-key collision', () => {
+		const nodes = flattenTree({'a.b.c': 1, a: {b: {c: 2}}});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		const dotted = nodes.find(n => n.key === 'a.b.c')!;
+		const deepLeaf = nodes.find(n => n.parentId === '$.a.b' && n.key === 'c')!;
+		expect(dotted.value).toBe(1);
+		expect(deepLeaf.value).toBe(2);
+		expect(dotted.id).not.toBe(deepLeaf.id);
+	});
 });

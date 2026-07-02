@@ -64,4 +64,36 @@ describe('node-id collisions', () => {
 		expect(output).toContain('marker1');
 		expect(output).not.toContain('marker2');
 	});
+
+	it('re-keys encoded-id nodes correctly when the data prop changes', async () => {
+		const {lastFrame, rerender} = render(
+			<JsonViewer
+				data={{'a.b': {inner: 1}}}
+				defaultExpandDepth={Infinity}
+				enableKeyboard={false}
+			/>,
+		);
+		await delay(50);
+		expect(lastFrame()!).toContain('"a.b"');
+		expect(lastFrame()!).toContain('inner');
+		expect(lastFrame()!).toContain('1');
+
+		// Changing the data prop rebuilds the node index and expand state
+		// against the new encoded ids (the reset runs in an effect). The new
+		// tree must render and the old one must be gone (no stale-id leakage).
+		rerender(
+			<JsonViewer
+				data={{'c.d': {other: 2}}}
+				defaultExpandDepth={Infinity}
+				enableKeyboard={false}
+			/>,
+		);
+		await delay(50);
+		const output = lastFrame()!;
+		expect(output).toContain('"c.d"');
+		expect(output).toContain('other');
+		expect(output).toContain('2');
+		expect(output).not.toContain('"a.b"');
+		expect(output).not.toContain('inner');
+	});
 });
