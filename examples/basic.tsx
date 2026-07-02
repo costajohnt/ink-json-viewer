@@ -3,7 +3,7 @@ import {JsonViewer} from 'ink-json-viewer';
 
 const sampleData = {
 	name: 'ink-json-viewer',
-	version: '0.2.1',
+	version: '0.3.0',
 	description: 'Interactive JSON tree viewer for Ink',
 	features: ['collapsible', 'keyboard navigation', 'syntax coloring', 'virtual scrolling'],
 	config: {

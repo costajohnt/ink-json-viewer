@@ -37,7 +37,7 @@ import {JsonViewer} from 'ink-json-viewer';
 
 const data = {
   name: 'ink-json-viewer',
-  version: '0.2.1',
+  version: '0.3.0',
   features: ['collapsible', 'keyboard nav', 'syntax coloring'],
   config: {maxHeight: 20, theme: 'default'},
   active: true,
