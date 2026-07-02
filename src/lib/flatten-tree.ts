@@ -10,6 +10,21 @@ export type FlattenOptions = {
 	rootLabel?: string;
 };
 
+/**
+ * Percent-encode the delimiter characters used to build node ids so that
+ * object keys containing '.', '[', ']' (or '%' itself) cannot collide with
+ * the structural separators. '%' is escaped first to keep the encoding
+ * injective. Object keys are prefixed with '.', array indices with '[n]',
+ * so the two spaces never overlap.
+ */
+function encodeKeySegment(key: string): string {
+	return key
+		.replaceAll('%', '%25')
+		.replaceAll('.', '%2E')
+		.replaceAll('[', '%5B')
+		.replaceAll(']', '%5D');
+}
+
 function buildPath(parentId: string | undefined, key: string | number | undefined): string {
 	if (parentId === undefined) {
 		return '$';
@@ -19,7 +34,7 @@ function buildPath(parentId: string | undefined, key: string | number | undefine
 		return `${parentId}[${key}]`;
 	}
 
-	return `${parentId}.${key as string}`;
+	return `${parentId}.${encodeKeySegment(key as string)}`;
 }
 
 function getChildCount(value: unknown, type: string): number {
