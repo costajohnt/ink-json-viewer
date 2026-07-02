@@ -93,9 +93,7 @@ export type JsonViewerTheme = {
 		bracket: string;
 		expandIcon: string;
 		focusIndicator: string;
-		focusedRowPrefix: string;
 		circular: string;
-		truncation: string;
 		preview: string;
 	};
 };
