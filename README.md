@@ -59,7 +59,7 @@ render(<JsonViewer data={data} defaultExpandDepth={1} />);
 | `enableKeyboard` | `boolean` | `true` | Enable keyboard navigation and interaction. |
 | `indentWidth` | `number` | `2` | Number of spaces per indentation level. |
 | `maxStringLength` | `number` | `120` | Maximum display length for string values before truncation (includes quotes). |
-| `onSelect` | `(path: string, value: unknown) => void` | `undefined` | Called when Enter is pressed on a leaf node. Receives the JSON path and raw value. |
+| `onSelect` | `(path: string, value: unknown) => void` | `undefined` | Called when Enter is pressed on a leaf node. Receives the node id and raw value. The id is a bespoke path (e.g. `$.users[0].name`), not spec JSONPath: each string key segment has `.`, `[`, `]`, and `%` percent-encoded, so a key like `a.b` arrives as `$.a%2Eb`. |
 | `theme` | `Partial<JsonViewerTheme>` | `undefined` | Partial theme overrides merged with the default theme. |
 | `isActive` | `boolean` | `true` | Whether the component is focused/active for keyboard input. Useful when embedding alongside other interactive components. |
 | `rootLabel` | `string` | `undefined` | Label to display for the root node (e.g., the variable name). |
