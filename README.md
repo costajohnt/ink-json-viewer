@@ -179,6 +179,8 @@ For custom UI, import the hooks and utilities directly:
 
 ```tsx
 import {
+  useJsonViewerState,
+  useJsonViewer,
   flattenTree,
   buildNodeIndex,
   detectType,
@@ -192,6 +194,8 @@ import {
 import type {JsonViewerState} from 'ink-json-viewer';
 ```
 
+- `useJsonViewerState(props)` is the headless state hook: it returns the full `JsonViewerState` (visible rows, focus, expand state, and navigation methods like `focusNext()` / `expandAll()`) for rendering your own rows
+- `useJsonViewer({state, isActive, onSelect})` wires the default keyboard bindings (arrows, `g`/`G`, expand/collapse, select) onto a `JsonViewerState`
 - `flattenTree(data, options?)` converts any value into a flat `JsonNode[]` array
 - `buildNodeIndex(nodes)` creates a `Map<string, JsonNode>` for O(1) lookups
 - `detectType(value)` returns the `JsonValueType` for any value

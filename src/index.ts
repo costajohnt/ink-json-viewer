@@ -1,4 +1,8 @@
-export {JsonViewer} from './components/json-viewer/index.js';
+export {
+	JsonViewer,
+	useJsonViewerState,
+	useJsonViewer,
+} from './components/json-viewer/index.js';
 export type {JsonViewerState} from './components/json-viewer/index.js';
 export type {
 	JsonValueType,
