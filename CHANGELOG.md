@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.3.0...v0.4.0) (2026-07-25)
+
+
+### Features
+
+* export the headless hooks useJsonViewerState and useJsonViewer ([e44763e](https://github.com/costajohnt/ink-json-viewer/commit/e44763e5f9b3b45f31d8d79a73e00eabaff8f84e)), closes [#7](https://github.com/costajohnt/ink-json-viewer/issues/7)
+
 ## 0.3.0 (2026-07-01)
 
 ### Breaking Changes
