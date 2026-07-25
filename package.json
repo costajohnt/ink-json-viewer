@@ -1,6 +1,6 @@
 {
   "name": "ink-json-viewer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Interactive, collapsible JSON tree viewer component for Ink",
   "type": "module",
   "main": "./dist/index.js",
