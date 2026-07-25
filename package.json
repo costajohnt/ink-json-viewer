@@ -38,7 +38,7 @@
     "ink-testing-library": "^4.0.0",
     "react": "^19.2.4",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10",
     "xo": "^2.0.2"
   },
