@@ -29,7 +29,7 @@
     "react": ">=19.0.0"
   },
   "devDependencies": {
-    "@sindresorhus/tsconfig": "^6.0.0",
+    "@sindresorhus/tsconfig": "^8.1.0",
     "@types/react": "^19.2.14",
     "delay": "^7.0.0",
     "eslint-plugin-react": "^7.37.5",
