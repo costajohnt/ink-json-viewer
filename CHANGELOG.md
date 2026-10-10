@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.4.0...v0.5.0) (2026-10-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* Map entry node ids change from `$.m.<key>` to `$.m.<map>[<index>]`. This affects ExpandState keys and the onSelect path for values inside a Map.
+
+### Bug Fixes
+
+* give Map entries unique node ids regardless of key ([#18](https://github.com/costajohnt/ink-json-viewer/issues/18)) ([2599bfe](https://github.com/costajohnt/ink-json-viewer/commit/2599bfe0d866fc8d083046afbdafc3c8f0fa159b)), closes [#17](https://github.com/costajohnt/ink-json-viewer/issues/17)
+
 ## [0.4.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.3.0...v0.4.0) (2026-07-25)
 
 
