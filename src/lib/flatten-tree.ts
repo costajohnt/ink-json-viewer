@@ -152,9 +152,11 @@ function getEntries(
 		case 'map': {
 			// Map keys can be any value, and distinct keys can stringify the
 			// same (two object keys, the number 1 and the string "1"). Ids are
-			// therefore built from the entry position, in a namespace that no
-			// object key or array index can produce ('<' and '>' never appear
-			// unencoded after '.', and a '.' is never followed by '[').
+			// therefore built from the entry position. They cannot collide with
+			// other ids: '.' and '[' are always structural (encodeKeySegment
+			// escapes them in keys), so an id like `P.<map>[0]` can only come
+			// from a Map at P, and a node at P is never both a Map and an
+			// object with a `<map>` key.
 			const mapEntries: ChildEntry[] = [];
 			let index = 0;
 			for (const [k, v] of value as Map<unknown, unknown>) {
