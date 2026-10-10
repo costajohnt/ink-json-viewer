@@ -243,4 +243,46 @@ describe('flattenTree', () => {
 		expect(deepLeaf.value).toBe(2);
 		expect(dotted.id).not.toBe(deepLeaf.id);
 	});
+
+	it('gives Map entries unique ids even when keys stringify the same', () => {
+		const nodes = flattenTree({
+			m: new Map<unknown, unknown>([
+				[{a: 1}, {x: 1}],
+				[{b: 2}, {y: 2}],
+				[1, 'num'],
+				['1', 'str'],
+			]),
+		});
+		const ids = nodes.map(n => n.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		const map = nodes.find(n => n.id === '$.m')!;
+		expect(map.childIds).toHaveLength(4);
+		const children = map.childIds.map(id => nodes.find(n => n.id === id)!);
+		expect(children.map(n => n.value)).toEqual([{x: 1}, {y: 2}, 'num', 'str']);
+	});
+
+	it('labels non-string Map keys with a preview and leaves string keys plain', () => {
+		const nodes = flattenTree(new Map<unknown, unknown>([
+			[{a: 1}, 'obj'],
+			[[1, 2], 'arr'],
+			[1, 'num'],
+			['1', 'str'],
+			[true, 'bool'],
+		]));
+		const children = nodes[0]!.childIds.map(id => nodes.find(n => n.id === id)!);
+		expect(children.map(n => n.keyLabel)).toEqual(['{a: 1}', '[1, 2]', '1', undefined, 'true']);
+		expect(children[3]!.key).toBe('1');
+	});
+
+	it('keeps object-keyed Map entries independent for children lookup', () => {
+		const nodes = flattenTree(new Map<unknown, unknown>([
+			[{a: 1}, {x: 1}],
+			[{b: 2}, {y: 2}],
+		]));
+		const [first, second] = nodes[0]!.childIds.map(id => nodes.find(n => n.id === id)!);
+		expect(first!.childIds).toHaveLength(1);
+		expect(second!.childIds).toHaveLength(1);
+		expect(first!.childIds[0]).not.toBe(second!.childIds[0]);
+	});
 });

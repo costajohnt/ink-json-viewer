@@ -43,7 +43,9 @@ function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, ma
 
 	const parts: string[] = [];
 
-	if (node.key !== undefined) {
+	if (node.keyLabel !== undefined) {
+		parts.push(`key ${node.keyLabel}`);
+	} else if (node.key !== undefined) {
 		parts.push(typeof node.key === 'number' ? `index ${node.key}` : node.key);
 	}
 
@@ -104,7 +106,7 @@ export function JsonNodeRow({
 	if (node.key !== undefined) {
 		keyLabel = (
 			<>
-				<Text color={theme.colors.key}>{formatKey(node.key)}</Text>
+				<Text color={theme.colors.key}>{node.keyLabel ?? formatKey(node.key)}</Text>
 				<Text dimColor>: </Text>
 			</>
 		);
