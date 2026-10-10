@@ -53,10 +53,10 @@ describe('flattenTree', () => {
 	});
 
 	it('detects circular references', () => {
-		const obj: Record<string, unknown> = {a: 1};
-		obj.self = obj;
+		const object: Record<string, unknown> = {a: 1};
+		object.self = object;
 
-		const nodes = flattenTree(obj);
+		const nodes = flattenTree(object);
 		expect(nodes).toHaveLength(3);
 		const circularNode = nodes.find(n => n.isCircular);
 		expect(circularNode).toBeDefined();
@@ -140,12 +140,12 @@ describe('flattenTree', () => {
 
 	it('enforces max depth', () => {
 		// Build deeply nested object
-		let obj: Record<string, unknown> = {value: 'leaf'};
+		let object: Record<string, unknown> = {value: 'leaf'};
 		for (let i = 0; i < 105; i++) {
-			obj = {nested: obj};
+			object = {nested: object};
 		}
 
-		const nodes = flattenTree(obj);
+		const nodes = flattenTree(object);
 		const deepest = nodes[nodes.length - 1]!;
 		// Should hit max depth and stop
 		expect(deepest.type).toBe('unknown');
@@ -183,9 +183,9 @@ describe('flattenTree', () => {
 	});
 
 	it('still detects actual circular references', () => {
-		const obj: Record<string, unknown> = {a: 1};
-		obj.self = obj;
-		const nodes = flattenTree(obj);
+		const object: Record<string, unknown> = {a: 1};
+		object.self = object;
+		const nodes = flattenTree(object);
 		expect(nodes.filter(n => n.isCircular)).toHaveLength(1);
 	});
 

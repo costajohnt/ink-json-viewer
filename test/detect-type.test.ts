@@ -11,8 +11,8 @@ describe('detectType', () => {
 		expect(detectType(42)).toBe('number');
 		expect(detectType(0)).toBe('number');
 		expect(detectType(-1.5)).toBe('number');
-		expect(detectType(Number.NaN)).toBe('number');
-		expect(detectType(Number.POSITIVE_INFINITY)).toBe('number');
+		expect(detectType(NaN)).toBe('number');
+		expect(detectType(Infinity)).toBe('number');
 	});
 
 	it('detects boolean', () => {

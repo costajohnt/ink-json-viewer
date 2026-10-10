@@ -33,11 +33,11 @@ describe('edge cases', () => {
 	});
 
 	it('renders circular references', () => {
-		const obj: Record<string, unknown> = {a: 1};
-		obj.self = obj;
+		const object: Record<string, unknown> = {a: 1};
+		object.self = object;
 
 		const {lastFrame} = render(
-			<JsonViewer data={obj} defaultExpandDepth={1} enableKeyboard={false} />,
+			<JsonViewer data={object} defaultExpandDepth={1} enableKeyboard={false} />,
 		);
 		const output = lastFrame()!;
 		expect(output).toContain('[Circular]');

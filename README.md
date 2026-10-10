@@ -23,7 +23,7 @@ Interactive, collapsible JSON tree viewer component for [Ink](https://github.com
 
 ## Install
 
-```
+```sh
 npm install ink-json-viewer
 ```
 
@@ -133,7 +133,7 @@ The viewer detects and renders 16 value types:
 
 When the visible row count exceeds `maxHeight`, the viewer enables virtual scrolling. Only `maxHeight` rows are rendered at a time. Scroll indicators appear at the top and bottom to show how many rows are hidden:
 
-```
+```text
   ^ 3 more
   ...visible rows...
   v 12 more

@@ -118,7 +118,7 @@ describe('JsonViewer', () => {
 		);
 		const output = lastFrame()!;
 		// The bottom scroll indicator must use the real down-arrow glyph...
-		expect(output).toContain('\u2193');
+		expect(output).toContain('\u{2193}');
 		// ...and must NOT contain the literal backslash-u escape sequence.
 		expect(output).not.toContain(String.raw`\u2193`);
 		expect(output).not.toContain(String.raw`\u2191`);
@@ -130,7 +130,7 @@ describe('JsonViewer', () => {
 		);
 		const output = lastFrame()!;
 		// The focus indicator character (U+276F)
-		expect(output).toContain('\u276F');
+		expect(output).toContain('\u{276F}');
 	});
 
 	describe('showRootBraces', () => {
