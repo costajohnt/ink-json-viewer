@@ -1,5 +1,5 @@
 /**
- * All JSON-representable value types, plus special detected types.
+ All JSON-representable value types, plus special detected types.
  */
 export type JsonValueType =
 	| 'string'
@@ -20,8 +20,8 @@ export type JsonValueType =
 	| 'unknown';
 
 /**
- * A single node in the flattened tree. Every visible line in the
- * rendered output corresponds to exactly one JsonNode.
+ A single node in the flattened tree. Every visible line in the
+ rendered output corresponds to exactly one JsonNode.
  */
 export type JsonNode = {
 	/** Unique stable identifier (JSON path, e.g. "$.users[0].name") */
@@ -37,9 +37,9 @@ export type JsonNode = {
 	key: string | number | undefined;
 
 	/**
-	 * Preformatted display label for a key that is not a plain string or
-	 * index, such as a Map entry keyed by a number or an object
-	 * (`1`, `{a: 1}`). When set, it is shown as-is instead of `key`.
+	 Preformatted display label for a key that is not a plain string or
+	 index, such as a Map entry keyed by a number or an object
+	 (`1`, `{a: 1}`). When set, it is shown as-is instead of `key`.
 	 */
 	keyLabel?: string;
 
@@ -63,14 +63,14 @@ export type JsonNode = {
 };
 
 /**
- * Tracks which nodes are expanded. Keyed by node id.
- * true = expanded, absent = collapsed.
+ Tracks which nodes are expanded. Keyed by node id.
+ true = expanded, absent = collapsed.
  */
 export type ExpandState = ReadonlyMap<string, boolean>;
 
 /**
- * A row in the visible output. Most rows map 1:1 to a JsonNode,
- * but closing brackets are synthetic rows.
+ A row in the visible output. Most rows map 1:1 to a JsonNode,
+ but closing brackets are synthetic rows.
  */
 export type VisibleRow = {
 	/** The node this row represents */
@@ -111,66 +111,66 @@ export type JsonViewerProps = {
 	data: unknown;
 
 	/**
-	 * Number of depth levels to expand on initial render.
-	 * 0 = fully collapsed, Infinity = fully expanded.
-	 * @default 1
+	 Number of depth levels to expand on initial render.
+	 0 = fully collapsed, Infinity = fully expanded.
+	 @default 1
 	 */
 	defaultExpandDepth?: number;
 
 	/**
-	 * Maximum number of visible lines before virtual scrolling kicks in.
-	 * @default 20
+	 Maximum number of visible lines before virtual scrolling kicks in.
+	 @default 20
 	 */
 	maxHeight?: number;
 
 	/**
-	 * Whether to show the outermost brackets for the root value.
-	 * @default true
+	 Whether to show the outermost brackets for the root value.
+	 @default true
 	 */
 	showRootBraces?: boolean;
 
 	/**
-	 * Alphabetically sort object keys.
-	 * @default false
+	 Alphabetically sort object keys.
+	 @default false
 	 */
 	sortKeys?: boolean;
 
 	/**
-	 * Enable keyboard navigation and interaction.
-	 * @default true
+	 Enable keyboard navigation and interaction.
+	 @default true
 	 */
 	enableKeyboard?: boolean;
 
 	/**
-	 * Called when the user presses Enter on a leaf node.
+	 Called when the user presses Enter on a leaf node.
 	 */
 	onSelect?: (path: string, value: unknown) => void;
 
 	/**
-	 * Partial theme overrides. Merged with default theme.
+	 Partial theme overrides. Merged with default theme.
 	 */
 	theme?: Partial<JsonViewerTheme>;
 
 	/**
-	 * Number of spaces per indentation level.
-	 * @default 2
+	 Number of spaces per indentation level.
+	 @default 2
 	 */
 	indentWidth?: number;
 
 	/**
-	 * Maximum string length before truncation.
-	 * @default 120
+	 Maximum string length before truncation.
+	 @default 120
 	 */
 	maxStringLength?: number;
 
 	/**
-	 * Whether the component is focused/active for keyboard input.
-	 * @default true
+	 Whether the component is focused/active for keyboard input.
+	 @default true
 	 */
 	isActive?: boolean;
 
 	/**
-	 * Root label to display (e.g., the variable name).
+	 Root label to display (e.g., the variable name).
 	 */
 	rootLabel?: string;
 };

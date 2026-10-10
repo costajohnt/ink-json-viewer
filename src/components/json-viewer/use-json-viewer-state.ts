@@ -1,5 +1,9 @@
 import {
-	useCallback, useEffect, useMemo, useReducer, useRef,
+	useCallback,
+	useEffect,
+	useMemo,
+	useReducer,
+	useRef,
 } from 'react';
 import type {
 	ExpandState,
@@ -15,13 +19,15 @@ export function computeVisibleRows(
 	nodes: readonly JsonNode[],
 	expandState: ExpandState,
 	nodeIndex: ReadonlyMap<string, JsonNode>,
+	// Named after the public `showRootBraces` prop it mirrors.
+	// eslint-disable-next-line unicorn/consistent-boolean-name
 	showRootBraces = true,
 ): VisibleRow[] {
 	// Determine the root node id (first node, depth 0)
 	const rootNodeId = nodes.length > 0 ? nodes[0]!.id : undefined;
-	const rootNode = rootNodeId ? nodeIndex.get(rootNodeId) : undefined;
+	const rootNode = rootNodeId === undefined ? undefined : nodeIndex.get(rootNodeId);
 	// Only hide braces when showRootBraces is false AND the root is an expandable container
-	const hideRootBraces = !showRootBraces && rootNode?.isExpandable === true;
+	const shouldHideRootBraces = !showRootBraces && rootNode?.isExpandable === true;
 
 	// Pass 1: collect visible node rows, skipping children of collapsed containers
 	const nodeRows: VisibleRow[] = [];
@@ -37,7 +43,7 @@ export function computeVisibleRows(
 		}
 
 		// When hiding root braces, skip the root container row itself
-		if (hideRootBraces && node.id === rootNodeId) {
+		if (shouldHideRootBraces && node.id === rootNodeId) {
 			// If root is expanded, its children will appear; if collapsed, skip all
 			if (!expandState.get(node.id)) {
 				// Root is collapsed and we're hiding braces, so show nothing meaningful.
@@ -56,7 +62,7 @@ export function computeVisibleRows(
 		}
 
 		// When hiding root braces, render root's children at depth - 1
-		const depth = hideRootBraces ? Math.max(0, node.depth - 1) : node.depth;
+		const depth = shouldHideRootBraces ? Math.max(0, node.depth - 1) : node.depth;
 
 		nodeRows.push({
 			nodeId: node.id,
@@ -106,7 +112,7 @@ export function computeVisibleRows(
 			row.kind === 'node'
 			&& node?.isExpandable
 			&& expandState.get(node.id)
-			&& !(hideRootBraces && node.id === rootNodeId)
+			&& !(shouldHideRootBraces && node.id === rootNodeId)
 		) {
 			openContainers.push({
 				nodeId: node.id,
@@ -178,7 +184,7 @@ function findRowIndexByNodeId(
 	visibleRows: readonly VisibleRow[],
 	nodeId: string | undefined,
 ): number {
-	if (!nodeId) {
+	if (nodeId === undefined) {
 		return 0;
 	}
 
@@ -246,18 +252,18 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 		}
 
 		case 'focus-previous': {
-			let prevIndex = state.focusedRowIndex - 1;
-			while (prevIndex >= 0 && state.visibleRows[prevIndex]!.kind === 'closing-bracket') {
-				prevIndex--;
+			let previousIndex = state.focusedRowIndex - 1;
+			while (previousIndex >= 0 && state.visibleRows[previousIndex]!.kind === 'closing-bracket') {
+				previousIndex--;
 			}
 
-			if (prevIndex < 0) {
+			if (previousIndex < 0) {
 				return state;
 			}
 
-			const prevRow = state.visibleRows[prevIndex]!;
+			const previousRow = state.visibleRows[previousIndex]!;
 			const scroll = clampScrollWindow(
-				prevIndex,
+				previousIndex,
 				state.visibleRows.length,
 				state.maxHeight,
 				state.visibleFromIndex,
@@ -265,8 +271,8 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 
 			return {
 				...state,
-				focusedNodeId: prevRow.nodeId,
-				focusedRowIndex: prevIndex,
+				focusedNodeId: previousRow.nodeId,
+				focusedRowIndex: previousIndex,
 				...scroll,
 			};
 		}
@@ -432,10 +438,10 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 			let {focusedNodeId} = state;
 			let focusedRowIndex = findRowIndexByNodeId(visibleRows, focusedNodeId);
 
-			if (focusedNodeId && !visibleRows.some(r => r.nodeId === focusedNodeId && r.kind === 'node')) {
+			if (focusedNodeId !== undefined && visibleRows.every(r => r.nodeId !== focusedNodeId || r.kind !== 'node')) {
 				// Walk up parents
 				let current = nodeIndex.get(focusedNodeId);
-				while (current?.parentId) {
+				while (current?.parentId !== undefined) {
 					const ancestor = nodeIndex.get(current.parentId);
 					current = ancestor;
 					if (ancestor && visibleRows.some(r => r.nodeId === ancestor.id && r.kind === 'node')) {
@@ -459,7 +465,7 @@ function reducer(state: TreeState, action: TreeAction): TreeState {
 
 		case 'move-to-parent': {
 			const node = nodeIndex.get(state.focusedNodeId ?? '');
-			if (!node?.parentId) {
+			if (node?.parentId === undefined) {
 				return state;
 			}
 
@@ -614,12 +620,12 @@ export function useJsonViewerState(props: {
 		createInitialState,
 	);
 
-	const isFirstRender = useRef(true);
+	const isFirstRenderRef = useRef(true);
 
 	// Full reset when data or expand depth changes
 	useEffect(() => {
-		if (isFirstRender.current) {
-			isFirstRender.current = false;
+		if (isFirstRenderRef.current) {
+			isFirstRenderRef.current = false;
 			return;
 		}
 
@@ -633,10 +639,10 @@ export function useJsonViewerState(props: {
 	}, [nodes, props.defaultExpandDepth]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Lightweight viewport update when only maxHeight or showRootBraces change
-	const isFirstViewportRender = useRef(true);
+	const isFirstViewportRenderRef = useRef(true);
 	useEffect(() => {
-		if (isFirstViewportRender.current) {
-			isFirstViewportRender.current = false;
+		if (isFirstViewportRenderRef.current) {
+			isFirstViewportRenderRef.current = false;
 			return;
 		}
 

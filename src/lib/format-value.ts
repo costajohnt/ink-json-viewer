@@ -64,11 +64,10 @@ export function formatValue(
 		}
 
 		case 'function': {
-			// Anonymous functions have an empty-string name, so `||` (not `??`)
-			// is intentional here to fall back to 'anonymous'.
-			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-			const name = (value as {name?: string}).name || 'anonymous';
-			return `[Function: ${name}]`;
+			// Anonymous functions have an empty-string name, so fall back to
+			// 'anonymous' for both a missing and an empty name.
+			const {name} = value as {name?: string};
+			return `[Function: ${name === undefined || name === '' ? 'anonymous' : name}]`;
 		}
 
 		case 'circular': {
@@ -102,7 +101,7 @@ export function formatKey(key: string | number): string {
 		return String(key);
 	}
 
-	if (/^[a-zA-Z_$][\w$]*$/.test(key)) {
+	if (/^[$a-z_][\w$]*$/i.test(key)) {
 		return key;
 	}
 

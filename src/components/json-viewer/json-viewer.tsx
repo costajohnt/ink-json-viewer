@@ -48,15 +48,17 @@ export function JsonViewer({
 		() => state.visibleRows.filter(r => r.kind === 'node').length,
 		[state.visibleRows],
 	);
-	const containerLabel = rootLabel
+	const containerLabel = rootLabel !== undefined && rootLabel !== ''
 		? `${rootLabel} JSON viewer, ${totalNodes} items`
 		: `JSON viewer, ${totalNodes} items`;
 
 	return (
+		// Ink's own aria-role prop, not a DOM ARIA attribute.
+		// eslint-disable-next-line jsx-a11y-x/aria-props
 		<Box flexDirection="column" aria-role="list">
 			<Text aria-label={containerLabel} />
 			{state.visibleFromIndex > 0 && (
-				<Text dimColor aria-hidden>{`  \u2191 ${state.visibleFromIndex} more`}</Text>
+				<Text dimColor aria-hidden>{`  \u{2191} ${state.visibleFromIndex} more`}</Text>
 			)}
 			{visibleSlice.map(row => (
 				<JsonNodeRow
@@ -72,7 +74,7 @@ export function JsonViewer({
 				/>
 			))}
 			{state.visibleToIndex < state.visibleRows.length && (
-				<Text dimColor aria-hidden>{`  \u2193 ${state.visibleRows.length - state.visibleToIndex} more`}</Text>
+				<Text dimColor aria-hidden>{`  \u{2193} ${state.visibleRows.length - state.visibleToIndex} more`}</Text>
 			)}
 		</Box>
 	);

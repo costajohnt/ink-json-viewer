@@ -1,14 +1,16 @@
+import xoReact from 'eslint-config-xo-react';
+
 /** @type {import('xo').FlatXoConfig} */
 const xoConfig = [
 	{
 		ignores: ['examples/**', 'tsup.config.ts', 'vitest.config.ts'],
 	},
+	// xo 4 dropped the `react` option; the React rules now come from
+	// eslint-config-xo-react (@eslint-react, react-hooks, jsx-a11y-x).
+	...xoReact(),
 	{
-		react: true,
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'error',
-			'react/react-in-jsx-scope': 'off',
-			'react/prop-types': 'off',
 			'@typescript-eslint/consistent-type-definitions': ['error', 'type'],
 			// Disabled: XO's stylistic rules conflict with Ink JSX patterns
 			'@stylistic/indent': 'off',
@@ -19,19 +21,15 @@ const xoConfig = [
 			'@stylistic/eol-last': 'off',
 			'@stylistic/key-spacing': 'off',
 			'@stylistic/jsx-tag-spacing': 'off',
-			'react/jsx-closing-tag-location': 'off',
-			'react/jsx-sort-props': 'off',
-			'react/no-array-index-key': 'off',
+			'@stylistic/jsx-closing-tag-location': 'off',
+			'perfectionist/sort-jsx-props': 'off',
+			'@eslint-react/no-array-index-key': 'off',
 			'capitalized-comments': 'off',
 			'require-unicode-regexp': 'off',
 			'unicorn/prefer-at': 'off',
 			'@typescript-eslint/no-unnecessary-type-assertion': 'off',
 			'@typescript-eslint/strict-void-return': 'off',
-			'react/jsx-indent': 'off',
-			'react/jsx-indent-props': 'off',
-			'react/jsx-tag-spacing': 'off',
-			'react/prefer-read-only-props': 'off',
-			'react/boolean-prop-naming': 'off',
+			'@stylistic/jsx-indent-props': 'off',
 			'unicorn/no-hex-escape': 'off',
 			'new-cap': 'off',
 			'no-promise-executor-return': 'off',

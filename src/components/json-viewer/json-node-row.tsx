@@ -72,7 +72,7 @@ export function JsonNodeRow({
 	maxStringLength,
 	isScreenReaderEnabled,
 }: JsonNodeRowProps) {
-	const focusPrefix = isFocused ? '\u276F ' : '  ';
+	const focusPrefix = isFocused ? '\u{276F} ' : '  ';
 
 	// Closing bracket row
 	if (row.kind === 'closing-bracket') {
@@ -82,7 +82,7 @@ export function JsonNodeRow({
 			: undefined;
 		return (
 			<Box>
-				{ariaLabel ? <Text aria-label={ariaLabel} /> : null}
+				{ariaLabel === undefined ? null : <Text aria-label={ariaLabel} />}
 				<Text>
 					<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 					<Text aria-hidden>{indent}</Text>
@@ -98,7 +98,7 @@ export function JsonNodeRow({
 	// Expand/collapse icon
 	let expandIcon = '  ';
 	if (node.isExpandable) {
-		expandIcon = isExpanded ? '\u25BE ' : '\u25B8 ';
+		expandIcon = isExpanded ? '\u{25BE} ' : '\u{25B8} ';
 	}
 
 	// Key label
@@ -142,8 +142,10 @@ export function JsonNodeRow({
 		: {selected: isFocused};
 
 	return (
+		// Ink's own aria-role/aria-state props, not DOM ARIA attributes.
+		// eslint-disable-next-line jsx-a11y-x/aria-props
 		<Box aria-role="listitem" aria-state={ariaState}>
-			{ariaLabel ? <Text aria-label={ariaLabel} /> : null}
+			{ariaLabel === undefined ? null : <Text aria-label={ariaLabel} />}
 			<Text>
 				<Text color={theme.colors.focusIndicator} aria-hidden>{focusPrefix}</Text>
 				<Text aria-hidden>{indent}</Text>

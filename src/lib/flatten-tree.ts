@@ -12,11 +12,11 @@ export type FlattenOptions = {
 };
 
 /**
- * Percent-encode the delimiter characters used to build node ids so that
- * object keys containing '.', '[', ']' (or '%' itself) cannot collide with
- * the structural separators. '%' is escaped first to keep the encoding
- * injective. Object keys are prefixed with '.', array indices with '[n]',
- * so the two spaces never overlap.
+ Percent-encode the delimiter characters used to build node ids so that
+ object keys containing '.', '[', ']' (or '%' itself) cannot collide with
+ the structural separators. '%' is escaped first to keep the encoding
+ injective. Object keys are prefixed with '.', array indices with '[n]',
+ so the two spaces never overlap.
  */
 function encodeKeySegment(key: string): string {
 	return key
@@ -42,10 +42,10 @@ const keyPreviewMaxLength = 40;
 const keyPreviewMaxEntries = 3;
 
 /**
- * Short single-line preview of a non-string Map key, used as its display
- * label (for example `1`, `true`, `{a: 1}`, `[1, 2]`). String keys are not
- * previewed: they keep their plain key so formatKey quotes them as needed,
- * which also keeps the string "1" visibly distinct from the number 1.
+ Short single-line preview of a non-string Map key, used as its display
+ label (for example `1`, `true`, `{a: 1}`, `[1, 2]`). String keys are not
+ previewed: they keep their plain key so formatKey quotes them as needed,
+ which also keeps the string "1" visibly distinct from the number 1.
  */
 function previewKey(key: unknown, depth = 0): string {
 	const type = detectType(key);
@@ -132,6 +132,8 @@ type ChildEntry = [
 function getEntries(
 	value: unknown,
 	type: string,
+	// Named after the public `sortKeys` option it mirrors.
+	// eslint-disable-next-line unicorn/consistent-boolean-name
 	sortKeys: boolean,
 	parentId: string,
 ): ChildEntry[] {
@@ -175,14 +177,14 @@ function getEntries(
 		}
 
 		case 'set': {
-			const setEntries: ChildEntry[] = [];
+			const memberEntries: ChildEntry[] = [];
 			let index = 0;
 			for (const v of value as Set<unknown>) {
-				setEntries.push([index, v]);
+				memberEntries.push([index, v]);
 				index++;
 			}
 
-			return setEntries;
+			return memberEntries;
 		}
 
 		default: {

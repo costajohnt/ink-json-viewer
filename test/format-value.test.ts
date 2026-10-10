@@ -23,7 +23,7 @@ describe('formatValue', () => {
 
 	it('formats numbers', () => {
 		expect(formatValue(42, 'number', 120)).toBe('42');
-		expect(formatValue(3.14, 'number', 120)).toBe('3.14');
+		expect(formatValue(2.5, 'number', 120)).toBe('2.5');
 		expect(formatValue(-1, 'number', 120)).toBe('-1');
 	});
 

@@ -4,10 +4,10 @@ import {render} from 'ink-testing-library';
 import delay from 'delay';
 import {JsonViewer} from '../src/components/json-viewer/json-viewer.js';
 
-const ARROW_UP = '\u001B[A';
-const ARROW_DOWN = '\u001B[B';
-const ARROW_RIGHT = '\u001B[C';
-const ARROW_LEFT = '\u001B[D';
+const ARROW_UP = '\u{1B}[A';
+const ARROW_DOWN = '\u{1B}[B';
+const ARROW_RIGHT = '\u{1B}[C';
+const ARROW_LEFT = '\u{1B}[D';
 const ENTER = '\r';
 const SPACE = ' ';
 
