@@ -1,5 +1,6 @@
 import type {JsonNode} from '../types.js';
 import {detectType} from './detect-type.js';
+import {formatValue} from './format-value.js';
 
 const maxDepth = 100;
 
@@ -37,6 +38,64 @@ function buildPath(parentId: string | undefined, key: string | number | undefine
 	return `${parentId}.${encodeKeySegment(key!)}`;
 }
 
+const keyPreviewMaxLength = 40;
+const keyPreviewMaxEntries = 3;
+
+/**
+ * Short single-line preview of a non-string Map key, used as its display
+ * label (for example `1`, `true`, `{a: 1}`, `[1, 2]`). String keys are not
+ * previewed: they keep their plain key so formatKey quotes them as needed,
+ * which also keeps the string "1" visibly distinct from the number 1.
+ */
+function previewKey(key: unknown, depth = 0): string {
+	const type = detectType(key);
+	switch (type) {
+		case 'object': {
+			const entries = Object.entries(key as Record<string, unknown>);
+			if (entries.length === 0) {
+				return '{}';
+			}
+
+			if (depth > 0) {
+				return '{…}';
+			}
+
+			const shown = entries
+				.slice(0, keyPreviewMaxEntries)
+				.map(([k, v]) => `${k}: ${previewKey(v, depth + 1)}`);
+			const more = entries.length > keyPreviewMaxEntries ? ', …' : '';
+			return truncateLabel(`{${shown.join(', ')}${more}}`);
+		}
+
+		case 'array': {
+			const items = key as unknown[];
+			if (items.length === 0) {
+				return '[]';
+			}
+
+			if (depth > 0) {
+				return '[…]';
+			}
+
+			const shown = items
+				.slice(0, keyPreviewMaxEntries)
+				.map(v => previewKey(v, depth + 1));
+			const more = items.length > keyPreviewMaxEntries ? ', …' : '';
+			return truncateLabel(`[${shown.join(', ')}${more}]`);
+		}
+
+		default: {
+			return truncateLabel(formatValue(key, type, keyPreviewMaxLength));
+		}
+	}
+}
+
+function truncateLabel(label: string): string {
+	return label.length > keyPreviewMaxLength
+		? `${label.slice(0, keyPreviewMaxLength - 1)}…`
+		: label;
+}
+
 function getChildCount(value: unknown, type: string): number {
 	switch (type) {
 		case 'object': {
@@ -61,11 +120,21 @@ function getChildCount(value: unknown, type: string): number {
 	}
 }
 
+type ChildEntry = [
+	key: string | number,
+	value: unknown,
+	/** Id override: Map children are identified by position, not by key. */
+	id?: string,
+	/** Display label for keys that are not plain strings or indices. */
+	keyLabel?: string,
+];
+
 function getEntries(
 	value: unknown,
 	type: string,
 	sortKeys: boolean,
-): Array<[string | number, unknown]> {
+	parentId: string,
+): ChildEntry[] {
 	switch (type) {
 		case 'object': {
 			let entries = Object.entries(value as Record<string, unknown>);
@@ -81,16 +150,32 @@ function getEntries(
 		}
 
 		case 'map': {
-			const mapEntries: Array<[string | number, unknown]> = [];
+			// Map keys can be any value, and distinct keys can stringify the
+			// same (two object keys, the number 1 and the string "1"). Ids are
+			// therefore built from the entry position. They cannot collide with
+			// other ids: '.' and '[' are always structural (encodeKeySegment
+			// escapes them in keys), so an id like `P.<map>[0]` can only come
+			// from a Map at P, and a node at P is never both a Map and an
+			// object with a `<map>` key.
+			const mapEntries: ChildEntry[] = [];
+			let index = 0;
 			for (const [k, v] of value as Map<unknown, unknown>) {
-				mapEntries.push([String(k), v]);
+				const id = `${parentId}.<map>[${index}]`;
+				if (typeof k === 'string') {
+					mapEntries.push([k, v, id]);
+				} else {
+					const label = previewKey(k);
+					mapEntries.push([label, v, id, label]);
+				}
+
+				index++;
 			}
 
 			return mapEntries;
 		}
 
 		case 'set': {
-			const setEntries: Array<[string | number, unknown]> = [];
+			const setEntries: ChildEntry[] = [];
 			let index = 0;
 			for (const v of value as Set<unknown>) {
 				setEntries.push([index, v]);
@@ -115,10 +200,11 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 		value: unknown,
 		key: string | number | undefined,
 		depth: number,
-		parentId: string | undefined,
+		placement: {parentId: string | undefined; id: string; keyLabel?: string},
 	): void {
+		const {parentId, id, keyLabel} = placement;
 		const type = detectType(value);
-		const id = buildPath(parentId, key);
+		const labelField = keyLabel === undefined ? {} : {keyLabel};
 
 		if (depth > maxDepth) {
 			nodes.push({
@@ -126,6 +212,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 				depth,
 				type: 'unknown',
 				key,
+				...labelField,
 				value: '[Max depth exceeded]',
 				isExpandable: false,
 				childCount: 0,
@@ -147,6 +234,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 					depth,
 					type: 'circular',
 					key,
+					...labelField,
 					value,
 					isExpandable: false,
 					childCount: 0,
@@ -168,6 +256,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 			depth,
 			type,
 			key,
+			...labelField,
 			value,
 			isExpandable,
 			childCount,
@@ -179,11 +268,11 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 		nodes.push(node);
 
 		if (isExpandable) {
-			const entries = getEntries(value, type, sortKeys);
-			for (const [childKey, childValue] of entries) {
-				const childId = buildPath(id, childKey);
+			const entries = getEntries(value, type, sortKeys, id);
+			for (const [childKey, childValue, childIdOverride, childKeyLabel] of entries) {
+				const childId = childIdOverride ?? buildPath(id, childKey);
 				node.childIds.push(childId);
-				traverse(childValue, childKey, depth + 1, id);
+				traverse(childValue, childKey, depth + 1, {parentId: id, id: childId, keyLabel: childKeyLabel});
 			}
 		}
 
@@ -197,7 +286,7 @@ export function flattenTree(data: unknown, options: FlattenOptions = {}): JsonNo
 		}
 	}
 
-	traverse(data, options.rootLabel, 0, undefined);
+	traverse(data, options.rootLabel, 0, {parentId: undefined, id: buildPath(undefined, undefined)});
 
 	return nodes;
 }

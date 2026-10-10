@@ -143,4 +143,25 @@ describe('edge cases', () => {
 		expect(output).toContain('Map(1)');
 		expect(output).toContain('Set(3)');
 	});
+
+	it('renders Map entries whose keys stringify the same as distinct rows', () => {
+		const data = new Map<unknown, unknown>([
+			[1, 'num'],
+			['1', 'str'],
+			[{a: 1}, 'first'],
+			[{b: 2}, 'second'],
+		]);
+		const {lastFrame} = render(
+			<JsonViewer data={data} defaultExpandDepth={1} enableKeyboard={false} />,
+		);
+		const output = lastFrame()!;
+		expect(output).toContain('"num"');
+		expect(output).toContain('"str"');
+		expect(output).toContain('"1"');
+		expect(output).toContain('{a: 1}');
+		expect(output).toContain('{b: 2}');
+		expect(output).toContain('"first"');
+		expect(output).toContain('"second"');
+		expect(output).not.toContain('[object Object]');
+	});
 });

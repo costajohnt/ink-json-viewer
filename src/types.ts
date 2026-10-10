@@ -36,6 +36,13 @@ export type JsonNode = {
 	/** Property key (for object children) or array index. undefined for root. */
 	key: string | number | undefined;
 
+	/**
+	 * Preformatted display label for a key that is not a plain string or
+	 * index, such as a Map entry keyed by a number or an object
+	 * (`1`, `{a: 1}`). When set, it is shown as-is instead of `key`.
+	 */
+	keyLabel?: string;
+
 	/** The raw value at this node. */
 	value: unknown;
 
