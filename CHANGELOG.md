@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/costajohnt/ink-json-viewer/compare/v0.5.0...v0.5.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** patch dev dependency advisories ([#21](https://github.com/costajohnt/ink-json-viewer/issues/21)) ([ab09e8a](https://github.com/costajohnt/ink-json-viewer/commit/ab09e8a4e7072603bf7ed606806c9bb12188273e))
+
 ## [0.5.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.4.0...v0.5.0) (2026-10-10)
 
 
