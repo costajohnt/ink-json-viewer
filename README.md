@@ -29,6 +29,8 @@ npm install ink-json-viewer
 
 Peer dependencies: `ink >= 6.0.0` and `react >= 19.0.0`. Requires Node.js `>= 20`.
 
+Ink 8 itself requires `react >= 19.3.0`, so use React 19.3 or later with Ink 8. Ink 7 and 8 also require Node.js `>= 22`.
+
 ## Quick Start
 
 ```tsx
