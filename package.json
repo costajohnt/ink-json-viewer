@@ -2,18 +2,24 @@
   "name": "ink-json-viewer",
   "version": "0.5.1",
   "description": "Interactive, collapsible JSON tree viewer component for Ink",
+  "license": "MIT",
+  "repository": "github:costajohnt/ink-json-viewer",
+  "homepage": "https://github.com/costajohnt/ink-json-viewer#readme",
+  "bugs": "https://github.com/costajohnt/ink-json-viewer/issues",
+  "author": "John Costa",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -24,23 +30,9 @@
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
-  "peerDependencies": {
-    "ink": ">=6.0.0",
-    "react": ">=19.0.0"
-  },
-  "devDependencies": {
-    "@sindresorhus/tsconfig": "^8.1.0",
-    "@types/react": "^19.2.14",
-    "delay": "^7.0.0",
-    "eslint-config-xo-react": "^0.32.0",
-    "ink": "^6.8.0",
-    "ink-testing-library": "^4.0.0",
-    "react": "^19.2.4",
-    "tsup": "^9.0.0",
-    "typescript": "^5.4.0",
-    "vitest": "^5.0.5",
-    "xo": "^4.0.0"
-  },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "ink",
     "cli",
@@ -52,15 +44,21 @@
     "tui",
     "inspector"
   ],
-  "author": "John Costa",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/costajohnt/ink-json-viewer"
+  "devDependencies": {
+    "@sindresorhus/tsconfig": "^8.1.0",
+    "@types/react": "^19.2.14",
+    "delay": "^7.0.0",
+    "eslint-config-xo-react": "^0.32.0",
+    "ink": "^6.8.0",
+    "ink-testing-library": "^4.0.0",
+    "react": "^19.2.4",
+    "tsup": "^9.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^5.0.5",
+    "xo": "^5.0.1"
   },
-  "homepage": "https://github.com/costajohnt/ink-json-viewer#readme",
-  "bugs": "https://github.com/costajohnt/ink-json-viewer/issues",
-  "engines": {
-    "node": ">=20"
+  "peerDependencies": {
+    "ink": ">=6.0.0",
+    "react": ">=19.0.0"
   }
 }

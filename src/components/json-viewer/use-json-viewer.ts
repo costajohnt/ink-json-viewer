@@ -49,11 +49,11 @@ export function useJsonViewer({
 			}
 
 			// Toggle expand on Enter/Space
-			if (key.return || input === ' ') {
+			if (input === ' ' || key.return) {
 				const node = state.nodeIndex.get(state.focusedNodeId ?? '');
 				if (node?.isExpandable) {
 					state.toggleExpand();
-				} else if (key.return && onSelect) {
+				} else if (onSelect && key.return) {
 					onSelect(node?.id ?? '', node?.value);
 				}
 

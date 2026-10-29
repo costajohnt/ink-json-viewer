@@ -24,16 +24,24 @@ export type JsonValueType =
  rendered output corresponds to exactly one JsonNode.
  */
 export type JsonNode = {
-	/** Unique stable identifier (JSON path, e.g. "$.users[0].name") */
+	/**
+	Unique stable identifier (JSON path, e.g. "$.users[0].name")
+	*/
 	id: string;
 
-	/** Depth level (0 = root). Used for indentation. */
+	/**
+	Depth level (0 = root). Used for indentation.
+	*/
 	depth: number;
 
-	/** The value type of this node */
+	/**
+	The value type of this node
+	*/
 	type: JsonValueType;
 
-	/** Property key (for object children) or array index. undefined for root. */
+	/**
+	Property key (for object children) or array index. undefined for root.
+	*/
 	key: string | number | undefined;
 
 	/**
@@ -43,22 +51,34 @@ export type JsonNode = {
 	 */
 	keyLabel?: string;
 
-	/** The raw value at this node. */
+	/**
+	The raw value at this node.
+	*/
 	value: unknown;
 
-	/** Whether this node is expandable (container with children) */
+	/**
+	Whether this node is expandable (container with children)
+	*/
 	isExpandable: boolean;
 
-	/** Number of direct children. 0 for leaves. */
+	/**
+	Number of direct children. 0 for leaves.
+	*/
 	childCount: number;
 
-	/** Parent node id. undefined for root. */
+	/**
+	Parent node id. undefined for root.
+	*/
 	parentId: string | undefined;
 
-	/** Ordered array of direct child node ids. Empty for leaves. */
+	/**
+	Ordered array of direct child node ids. Empty for leaves.
+	*/
 	childIds: string[];
 
-	/** Whether this is a circular reference. */
+	/**
+	Whether this is a circular reference.
+	*/
 	isCircular: boolean;
 };
 
@@ -73,23 +93,35 @@ export type ExpandState = ReadonlyMap<string, boolean>;
  but closing brackets are synthetic rows.
  */
 export type VisibleRow = {
-	/** The node this row represents */
+	/**
+	The node this row represents
+	*/
 	nodeId: string;
 
-	/** Display depth (for indentation) */
+	/**
+	Display depth (for indentation)
+	*/
 	depth: number;
 
-	/** Row kind */
+	/**
+	Row kind
+	*/
 	kind: 'node' | 'closing-bracket';
 
-	/** For closing-bracket rows, the bracket character. */
+	/**
+	For closing-bracket rows, the bracket character.
+	*/
 	closingBracket?: '}' | ']';
 
-	/** Global index in the visible rows array */
+	/**
+	Global index in the visible rows array
+	*/
 	index: number;
 };
 
-/** Color theme for the JSON viewer */
+/**
+Color theme for the JSON viewer
+*/
 export type JsonViewerTheme = {
 	colors: {
 		string: string;
@@ -105,9 +137,13 @@ export type JsonViewerTheme = {
 	};
 };
 
-/** Props for the JsonViewer component */
+/**
+Props for the JsonViewer component
+*/
 export type JsonViewerProps = {
-	/** The JSON value to render. Accepts any JS value. */
+	/**
+	The JSON value to render. Accepts any JS value.
+	*/
 	data: unknown;
 
 	/**
@@ -175,7 +211,9 @@ export type JsonViewerProps = {
 	rootLabel?: string;
 };
 
-/** Internal tree state */
+/**
+Internal tree state
+*/
 export type TreeState = {
 	nodes: readonly JsonNode[];
 	nodeIndex: ReadonlyMap<string, JsonNode>;
@@ -189,7 +227,9 @@ export type TreeState = {
 	showRootBraces: boolean;
 };
 
-/** Reducer actions */
+/**
+Reducer actions
+*/
 export type TreeAction =
 	| {type: 'focus-next'}
 	| {type: 'focus-previous'}

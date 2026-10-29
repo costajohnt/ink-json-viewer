@@ -3,9 +3,5 @@ export function truncate(string_: string, maxLength: number): string {
 		return string_;
 	}
 
-	if (maxLength <= 3) {
-		return string_.slice(0, maxLength);
-	}
-
-	return string_.slice(0, maxLength - 3) + '...';
+	return maxLength <= 3 ? string_.slice(0, maxLength) : string_.slice(0, maxLength - 3) + '...';
 }

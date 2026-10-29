@@ -29,7 +29,7 @@ jobs:
         if: matrix.ink-version == 7
       - run: npm run build
       - run: npx tsc --noEmit
-      # xo 4 (ESLint 10) requires Node >= 22, so lint runs only on the
+      # xo 5 (ESLint 10) requires Node >= 22, so lint runs only on the
       # Node 22 matrix entries.
       - run: npm run lint
         if: matrix.node-version == 22

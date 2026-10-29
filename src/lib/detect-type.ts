@@ -53,9 +53,5 @@ export function detectType(value: unknown): JsonValueType {
 		return 'array';
 	}
 
-	if (typeof value === 'object') {
-		return 'object';
-	}
-
-	return 'unknown';
+	return typeof value === 'object' ? 'object' : 'unknown';
 }
