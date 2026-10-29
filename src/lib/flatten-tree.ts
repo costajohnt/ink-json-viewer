@@ -31,11 +31,7 @@ function buildPath(parentId: string | undefined, key: string | number | undefine
 		return '$';
 	}
 
-	if (typeof key === 'number') {
-		return `${parentId}[${key}]`;
-	}
-
-	return `${parentId}.${encodeKeySegment(key!)}`;
+	return typeof key === 'number' ? `${parentId}[${key}]` : `${parentId}.${encodeKeySegment(key!)}`;
 }
 
 const keyPreviewMaxLength = 40;
@@ -123,9 +119,13 @@ function getChildCount(value: unknown, type: string): number {
 type ChildEntry = [
 	key: string | number,
 	value: unknown,
-	/** Id override: Map children are identified by position, not by key. */
+	/**
+	Id override: Map children are identified by position, not by key.
+	*/
 	id?: string,
-	/** Display label for keys that are not plain strings or indices. */
+	/**
+	Display label for keys that are not plain strings or indices.
+	*/
 	keyLabel?: string,
 ];
 

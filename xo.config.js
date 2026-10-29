@@ -1,6 +1,8 @@
 import xoReact from 'eslint-config-xo-react';
 
-/** @type {import('xo').FlatXoConfig} */
+/**
+@type {import('xo').FlatXoConfig}
+*/
 const xoConfig = [
 	{
 		ignores: ['examples/**', 'tsup.config.ts', 'vitest.config.ts'],
@@ -49,6 +51,14 @@ const xoConfig = [
 			// Sorting a locally-owned array in place is fine (toSorted is not in
 			// the es2022 lib target).
 			'unicorn/no-array-sort': 'off',
+		},
+	},
+	{
+		files: ['package.json'],
+		rules: {
+			// Keep top-level `main`/`types` alongside `exports` for consumers on
+			// TypeScript `moduleResolution: node10` and older resolvers.
+			'package-json/prefer-exports': 'off',
 		},
 	},
 	{
