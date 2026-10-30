@@ -143,7 +143,6 @@ export function JsonNodeRow({
 
 	return (
 		// Ink's own aria-role/aria-state props, not DOM ARIA attributes.
-		// eslint-disable-next-line jsx-a11y-x/aria-props
 		<Box aria-role="listitem" aria-state={ariaState}>
 			{ariaLabel === undefined ? null : <Text aria-label={ariaLabel} />}
 			<Text>
