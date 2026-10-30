@@ -2,54 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [main, master]
   pull_request:
-    branches: [master, main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Each leg installs its ink major explicitly (not via the devDependency)
-        # so the advertised `ink >=6` peer range is tested at every major. ink 7
-        # and 8 require Node >= 22. React is the lowest minor each ink line
-        # accepts: ink 6.8 and 7 use react-reconciler 0.33 (react ^19.2), and
-        # ink 8 requires react >= 19.3.
-        include:
-          - node-version: 20
-            ink-version: 6
-            react-version: '19.2'
-          - node-version: 22
-            ink-version: 6
-            react-version: '19.2'
-          - node-version: 22
-            ink-version: 7
-            react-version: '19.2'
-          - node-version: 22
-            ink-version: 8
-            react-version: '19.3'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-      - run: npm ci
-      - run: >-
-          npm install --no-save
-          ink@^${{ matrix.ink-version }}
-          react@~${{ matrix.react-version }}
-          @types/react@~${{ matrix.react-version }}
-      - name: Show resolved ink and react
-        run: >-
-          node -p "['ink', 'react', 'react-reconciler'].map(name =>
-          name + '@' + require('./node_modules/' + name + '/package.json').version).join(' ')"
-      - run: npm run build
-      - run: npx tsc --noEmit
-      # xo 5 (ESLint 10) requires Node >= 22, so lint runs only on the
-      # Node 22 matrix entries.
-      - run: npm run lint
-        if: matrix.node-version == 22
-      - run: npm test
+  ci:
+    # Shared lint + build + typecheck + test matrix for all the Ink libraries.
+    uses: costajohnt/ink-config/.github/workflows/ci.yml@main
