@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.5.1...v1.0.0) (2026-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* requires Node.js 22 or later.
+
+### Features
+
+* require Node.js 22 ([#32](https://github.com/costajohnt/ink-json-viewer/issues/32)) ([f432eca](https://github.com/costajohnt/ink-json-viewer/commit/f432eca0da9b0f76ad96439bcd63f7f31baf816c))
+
 ## [0.5.1](https://github.com/costajohnt/ink-json-viewer/compare/v0.5.0...v0.5.1) (2026-10-10)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "ink-json-viewer",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "description": "Interactive, collapsible JSON tree viewer component for Ink",
   "license": "MIT",
   "repository": "github:costajohnt/ink-json-viewer",
