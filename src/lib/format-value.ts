@@ -1,12 +1,23 @@
 import type {JsonValueType} from '../types.js';
 
+/**
+ Render C0, DEL and C1 control characters (ESC included) as visible `\uXXXX`
+ escapes so untrusted data cannot emit terminal control sequences (OSC 52
+ clipboard writes, OSC 8 links, SGR styling, cursor moves), whatever Ink
+ version renders it.
+ */
+export function escapeControlChars(value: string): string {
+	// eslint-disable-next-line no-control-regex
+	return value.replaceAll(/[\u0000-\u001F\u007F-\u009F]/g, char => `\\u${char.codePointAt(0)!.toString(16).padStart(4, '0')}`);
+}
+
 function escapeString(value: string): string {
-	return value
+	return escapeControlChars(value
 		.replaceAll('\\', '\\\\')
 		.replaceAll('"', '\\"')
 		.replaceAll('\n', '\\n')
 		.replaceAll('\r', '\\r')
-		.replaceAll('\t', '\\t');
+		.replaceAll('\t', '\\t'));
 }
 
 export function formatValue(
@@ -52,7 +63,7 @@ export function formatValue(
 		}
 
 		case 'regexp': {
-			return (value as RegExp).toString();
+			return escapeControlChars((value as RegExp).toString());
 		}
 
 		case 'bigint': {
@@ -60,14 +71,14 @@ export function formatValue(
 		}
 
 		case 'symbol': {
-			return (value as symbol).toString();
+			return escapeControlChars((value as symbol).toString());
 		}
 
 		case 'function': {
 			// Anonymous functions have an empty-string name, so fall back to
 			// 'anonymous' for both a missing and an empty name.
 			const {name} = value as {name?: string};
-			return `[Function: ${name === undefined || name === '' ? 'anonymous' : name}]`;
+			return `[Function: ${name === undefined || name === '' ? 'anonymous' : escapeControlChars(String(name))}]`;
 		}
 
 		case 'circular': {

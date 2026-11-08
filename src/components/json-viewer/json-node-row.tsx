@@ -1,7 +1,7 @@
 import {type ReactNode} from 'react';
 import {Box, Text} from 'ink';
 import type {JsonNode, JsonViewerTheme, VisibleRow} from '../../types.js';
-import {formatKey, formatValue} from '../../lib/format-value.js';
+import {escapeControlChars, formatKey, formatValue} from '../../lib/format-value.js';
 import {JsonValue} from './json-value.js';
 import {JsonCollapsedPreview} from './json-collapsed-preview.js';
 
@@ -46,7 +46,7 @@ function buildAriaLabel(node: JsonNode, isExpanded: boolean, row: VisibleRow, ma
 	if (node.keyLabel !== undefined) {
 		parts.push(`key ${node.keyLabel}`);
 	} else if (node.key !== undefined) {
-		parts.push(typeof node.key === 'number' ? `index ${node.key}` : node.key);
+		parts.push(typeof node.key === 'number' ? `index ${node.key}` : escapeControlChars(node.key));
 	}
 
 	if (node.isExpandable) {

@@ -1,6 +1,6 @@
 import type {JsonNode} from '../types.js';
 import {detectType} from './detect-type.js';
-import {formatValue} from './format-value.js';
+import {escapeControlChars, formatValue} from './format-value.js';
 
 const maxDepth = 100;
 
@@ -58,7 +58,7 @@ function previewKey(key: unknown, depth = 0): string {
 
 			const shown = entries
 				.slice(0, keyPreviewMaxEntries)
-				.map(([k, v]) => `${k}: ${previewKey(v, depth + 1)}`);
+				.map(([k, v]) => `${escapeControlChars(k)}: ${previewKey(v, depth + 1)}`);
 			const more = entries.length > keyPreviewMaxEntries ? ', …' : '';
 			return truncateLabel(`{${shown.join(', ')}${more}}`);
 		}
