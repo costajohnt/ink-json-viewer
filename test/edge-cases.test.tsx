@@ -164,4 +164,31 @@ describe('edge cases', () => {
 		expect(output).toContain('"second"');
 		expect(output).not.toContain('[object Object]');
 	});
+
+	it('never writes control characters from keys or values to the terminal', () => {
+		const osc52 = '\u{1B}]52;c;aGk=\u{7}';
+		const osc8 = '\u{1B}]8;;https://evil.example\u{7}click\u{1B}]8;;\u{7}';
+		const data = {
+			[`k${osc52}`]: `v${osc52}`,
+			sgr: '\u{1B}[31mred\u{1B}[0m',
+			link: osc8,
+			c1: 'a\u{9B}2Jb\u{85}c',
+			map: new Map([[{[`m${osc52}`]: 1}, 'x']]),
+		};
+		const {lastFrame} = render(
+			<JsonViewer data={data} enableKeyboard={false} defaultExpandDepth={3} />,
+		);
+		const frame = lastFrame()!;
+		// The frame may carry the theme's own SGR colors, so check for the
+		// payload sequences specifically rather than any ESC.
+		for (const raw of ['\u{1B}]', '\u{7}', '\u{1B}[31mred', '\u{9B}', '\u{85}']) {
+			expect(frame).not.toContain(raw);
+		}
+
+		expect(frame).toContain('\\u001b]52;c;aGk=\\u0007');
+		expect(frame).toContain('\\u001b[31mred');
+		expect(frame).toContain('\\u001b]8;;https://evil.example');
+		expect(frame).toContain('a\\u009b2Jb\\u0085c');
+	});
 });
+
