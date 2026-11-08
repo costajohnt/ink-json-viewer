@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/costajohnt/ink-json-viewer/compare/v1.0.0...v1.0.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* escape control characters in keys and values before rendering ([#38](https://github.com/costajohnt/ink-json-viewer/issues/38)) ([78c43c8](https://github.com/costajohnt/ink-json-viewer/commit/78c43c8e1430ad376b12cfb03f7e5f6068febb68))
+
 ## [1.0.0](https://github.com/costajohnt/ink-json-viewer/compare/v0.5.1...v1.0.0) (2026-10-30)
 
 
