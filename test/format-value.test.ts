@@ -108,8 +108,8 @@ describe('formatKey', () => {
 });
 
 describe('control character escaping', () => {
-	const osc52 = '\u001B]52;c;aGk=\u0007';
-	const sgr = '\u001B[31mred\u001B[0m';
+	const osc52 = '\u{1B}]52;c;aGk=\u{7}';
+	const sgr = '\u{1B}[31mred\u{1B}[0m';
 
 	it('escapes ESC-based OSC and SGR sequences in string values', () => {
 		expect(formatValue(osc52, 'string', 120)).toBe('"\\u001b]52;c;aGk=\\u0007"');
@@ -117,13 +117,13 @@ describe('control character escaping', () => {
 	});
 
 	it('escapes raw C0, DEL and C1 characters in string values', () => {
-		expect(formatValue('a\u0000b\u007Fc\u0085d\u009Be', 'string', 120)).toBe('"a\\u0000b\\u007fc\\u0085d\\u009be"');
+		expect(formatValue('a\u{0}b\u{7F}c\u{85}d\u{9B}e', 'string', 120)).toBe('"a\\u0000b\\u007fc\\u0085d\\u009be"');
 	});
 
 	it('escapes control characters in keys', () => {
 		expect(formatKey(osc52)).toBe('"\\u001b]52;c;aGk=\\u0007"');
 		expect(formatKey(`k${sgr}`)).toBe('"k\\u001b[31mred\\u001b[0m"');
-		expect(formatKey('\u009B2J')).toBe('"\\u009b2J"');
+		expect(formatKey('\u{9B}2J')).toBe('"\\u009b2J"');
 	});
 
 	it('escapes control characters in function names, symbols and regexps', () => {
@@ -131,6 +131,7 @@ describe('control character escaping', () => {
 		Object.defineProperty(fn, 'name', {value: `x${osc52}`});
 		expect(formatValue(fn, 'function', 120)).toBe('[Function: x\\u001b]52;c;aGk=\\u0007]');
 		expect(formatValue(Symbol(sgr), 'symbol', 120)).toBe('Symbol(\\u001b[31mred\\u001b[0m)');
-		expect(formatValue(new RegExp('\u001B'), 'regexp', 120)).toBe('/\\u001b/');
+		// eslint-disable-next-line no-control-regex, regexp/no-control-character
+		expect(formatValue(new RegExp('\u{1B}'), 'regexp', 120)).toBe('/\\u001b/');
 	});
 });

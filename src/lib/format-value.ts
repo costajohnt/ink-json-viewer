@@ -7,8 +7,8 @@ import type {JsonValueType} from '../types.js';
  version renders it.
  */
 export function escapeControlChars(value: string): string {
-	// eslint-disable-next-line no-control-regex
-	return value.replaceAll(/[\u0000-\u001F\u007F-\u009F]/g, char => `\\u${char.codePointAt(0)!.toString(16).padStart(4, '0')}`);
+	// eslint-disable-next-line no-control-regex, regexp/no-control-character
+	return value.replaceAll(/[\u{0}-\u{1F}\u{7F}-\u{9F}]/gu, char => `\\u${char.codePointAt(0)!.toString(16).padStart(4, '0')}`);
 }
 
 function escapeString(value: string): string {
@@ -78,7 +78,7 @@ export function formatValue(
 			// Anonymous functions have an empty-string name, so fall back to
 			// 'anonymous' for both a missing and an empty name.
 			const {name} = value as {name?: string};
-			return `[Function: ${name === undefined || name === '' ? 'anonymous' : escapeControlChars(String(name))}]`;
+			return `[Function: ${name === undefined || name === '' ? 'anonymous' : escapeControlChars(name)}]`;
 		}
 
 		case 'circular': {
